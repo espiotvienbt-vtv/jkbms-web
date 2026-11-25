@@ -81,6 +81,46 @@ svg.ch{width:100%;display:block}
 .row small,.note{color:var(--mut);font-size:13px;line-height:1.4}
 #setup{position:fixed;inset:0;background:#000;z-index:9;display:none;flex-direction:column;justify-content:center;padding:28px;max-width:560px;margin:0 auto}
 #setup input{font-size:28px;letter-spacing:6px;text-align:center;text-transform:uppercase;padding:14px;border-radius:12px;border:1px solid var(--line);background:#1c1c1e;color:#fff;margin:16px 0}
+
+/* ===== Giao diện kiểu bảng điều khiển tối, viền xanh ===== */
+body{background:#0e0f10}
+header{background:#17191b;border-bottom:1px solid #26292c}
+header span#title{font-weight:700;letter-spacing:1px;color:#e8c9a0}
+main{background:#0e0f10}
+.stline{text-align:center;font-size:19px;font-weight:700;margin:4px 0 8px;color:var(--mut)}
+.stline.ok{color:#6cf542}.stline.bad{color:#ff5a4d}
+.chips{display:flex;gap:8px;margin-bottom:12px}
+.chips span{flex:1;text-align:center;background:#17191b;border:1px solid #2a2d30;border-radius:20px;padding:8px 4px;font-size:13.5px;color:#e6e6e6;white-space:nowrap}
+.sw3{display:flex;gap:8px;margin-bottom:12px}
+.sp{flex:1;display:flex;align-items:center;justify-content:space-between;gap:6px;background:#17191b;border:1px solid #2a2d30;border-radius:22px;padding:6px 6px 6px 12px;font-size:12.5px;color:#9aa0a6;cursor:pointer}
+.cap{font-size:12.5px;padding:7px 11px;border-radius:16px;background:#3a3c40;color:#ccc;font-weight:800;margin:0;display:inline-block}
+.cap.on-t{background:#2fbf3f;color:#04210a;box-shadow:0 0 8px rgba(47,191,63,.55)}
+.cap.off-t{background:#4a3a3a;color:#ff8a80;box-shadow:none}
+.ring{position:relative;width:100%;max-width:310px;margin:4px auto 10px;background:#0b0b0c;border-radius:26px;padding:14px}
+.ring svg{width:100%;display:block}
+.ring .gc{padding-top:0;gap:9px}
+.ring .gc .soc{color:#f1d9bf;font-size:58px}
+.ring .pill{border:1.5px solid #2f6b38;background:#12301a;color:#fff;width:150px;font-size:21px;padding:5px 0}
+.banner{background:#14221a;border:1px solid #2c5a36;color:#cfeccf}
+.banner.warn{background:#2c2410;border-color:#6b5320}.banner.bad{background:#2d1311;border-color:#7a2a24}
+.grid4{background:none;padding:0;gap:8px;margin-bottom:8px}
+.grid4>div{background:linear-gradient(180deg,#1b2b20,#131b15);border:1px solid #2c5a36;border-radius:12px;padding:12px 2px 10px;border-right:1px solid #2c5a36}
+.grid4>div:last-child{border:1px solid #2c5a36}
+.grid4 b{font-size:21px}
+.grid4 span{font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;color:#a9b4ab}
+.card{background:#17191b;border:1px solid #2a2d30}
+.row2{font-size:15px;letter-spacing:.3px}
+.bar{background:#2a2c2f}
+h3.sec{justify-content:center;font-size:14px;color:#cfd3d6;margin:16px 0 10px;letter-spacing:.8px}
+h3.sec:before{display:none}
+.cg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.cp{display:flex;justify-content:space-between;align-items:center;gap:3px;background:#17191b;border:1px solid #2a2d30;border-radius:11px;padding:9px 6px;font-size:14px}
+.cp i{font-style:normal;color:#9aa0a6;font-size:12px}
+.cp b{color:#5fd36a;font-weight:600}
+.cp.hi b{color:#4aa8ff}.cp.lo b{color:#ff5a4d}
+.cp.r b{color:#5fd36a}
+nav{background:#17191b;border-top:1px solid #26292c}
+@media(max-width:380px){.cp{font-size:12.5px;padding:8px 4px}.sp{font-size:11px}}
 </style>
 </head>
 <body>
@@ -88,20 +128,27 @@ svg.ch{width:100%;display:block}
  <h2>Thêm thiết bị</h2>
  <p class="note" style="margin-top:8px;font-size:15px">Nhập mã thiết bị: 6 số trong tên WiFi của thiết bị (vtv_030375 thì mã là 030375). Chỉ cần nhập một lần.</p>
  <input id="idin" maxlength="10" autocomplete="off" placeholder="030375">
+ <div id="setupmsg" class="note" style="color:var(--bad);min-height:18px;margin-bottom:10px"></div>
  <button class="btn" id="idgo" style="background:var(--ok);color:#000;font-weight:600">Kết nối</button>
 </div>
 
-<header id="hd"><span class="dot"></span><span id="title">Đang kết nối…</span><button id="chid">Đổi ID</button></header>
+<header id="hd"><span class="dot"></span><span id="title">VIENPIN BMS</span><button id="chid">Đổi ID</button></header>
 <main>
 <!-- TRANG CHỦ -->
 <section class="tab show" id="t-home">
- <div class="sw"><div>Sạc<b id="s-chg">--</b></div><div>Xả<b id="s-dis">--</b></div><div>Cân bằng<b id="s-bal">--</b></div></div>
- <div class="gauge">
+ <div id="stline" class="stline">Đang kết nối…</div>
+ <div class="chips"><span id="chipId">ID:--</span><span id="chipUp">TIME:--</span><span id="chipCy">CYCLE:--</span></div>
+ <div class="sw3">
+  <div class="sp" id="p-chg"><span>SẠC</span><b id="s-chg" class="cap">--</b></div>
+  <div class="sp" id="p-dis"><span>XẢ</span><b id="s-dis" class="cap">--</b></div>
+  <div class="sp" id="p-bal"><span>CÂN BẰNG</span><b id="s-bal" class="cap">--</b></div>
+ </div>
+ <div class="ring">
   <svg viewBox="0 0 200 200">
-   <defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#6cf542"/><stop offset=".6" stop-color="#5ed3a8"/><stop offset="1" stop-color="#4aa8ff"/></linearGradient></defs>
-   <path d="M36.36 163.64A90 90 0 1 1 163.64 163.64" fill="none" stroke="#2a2a2a" stroke-width="12" stroke-linecap="round" pathLength="100"/>
-   <path id="arc" d="M36.36 163.64A90 90 0 1 1 163.64 163.64" fill="none" stroke="url(#g)" stroke-width="12" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100" style="transition:stroke-dasharray .6s"/>
-   <text x="42" y="186" fill="#9aa0a6" font-size="9">0</text><text x="150" y="186" fill="#9aa0a6" font-size="9">100</text>
+   <defs><linearGradient id="gb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7d6ac"/><stop offset="1" stop-color="#c58a52"/></linearGradient></defs>
+   <circle cx="100" cy="100" r="95" fill="#0a0a0b" stroke="#2c2c30" stroke-width="2"/>
+   <circle cx="100" cy="100" r="86" fill="none" stroke="#2a2a2d" stroke-width="5"/>
+   <circle id="arc" cx="100" cy="100" r="86" fill="none" stroke="url(#gb)" stroke-width="5" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90 100 100)" style="transition:stroke-dasharray .6s"/>
   </svg>
   <div class="gc"><div class="soc"><span id="soc">--</span>%</div><div class="pill" id="volt">--V</div><div class="pill" id="amp">--A</div></div>
  </div>
@@ -119,10 +166,12 @@ svg.ch{width:100%;display:block}
   <div><b id="soh">--</b><span>SOH (%)</span></div>
  </div>
  <div class="card">
-  <div class="row2"><span>Dòng (A): <b id="a2">--</b></span><span>Công suất (W): <b id="w2">--</b></span></div>
+  <div class="row2"><span>CÔNG SUẤT (W): <b id="w2">--</b> <span id="pmax" style="color:var(--mut)"></span></span><span>Dòng (A): <b id="a2">--</b></span></div>
   <div class="bar"><i id="pbar"></i></div>
   <div style="font-size:17px">Trạng thái: <b id="mode" style="color:var(--ok)">--</b></div>
  </div>
+ <h3 class="sec">ĐIỆN ÁP CELL (V)</h3><div class="cg" id="hcells"></div>
+ <h3 class="sec">ĐIỆN TRỞ CELL (Ω)</h3><div class="cg" id="hres"></div>
 </section>
 
 <!-- TRẠNG THÁI -->
@@ -190,7 +239,9 @@ svg.ch{width:100%;display:block}
 <script>
 const $=id=>document.getElementById(id);
 const f=(v,d)=>(v==null||isNaN(v))?'--':Number(v).toFixed(d);
-const BROKER='wss://broker.emqx.io:8084/mqtt';   // cùng broker với firmware (cổng WebSocket TLS)
+const BROKER='wss://i2176b42.ala.asia-southeast1.emqxsl.com:8084/mqtt';   // broker riêng EMQX Cloud (WebSocket TLS)
+const MQTT_USER='DIEN_TEN_TAI_KHOAN';   // <-- tài khoản DÙNG CHUNG tạo trên EMQX (giống trong firmware)
+const MQTT_PASS='DIEN_MAT_KHAU';        // <-- mật khẩu của tài khoản đó
 let ID=null,cli=null,S=null,SET=null,online=false,lastRx=0,H24=[],H7=[],K=null,hmode='24',kmode='d';
 try{ID=localStorage.getItem('vp_id')}catch(e){}
 /* Quét QR có gắn #ID (vd .../jkbms-web/#030375): tự nhận ID, lưu lại và xoá phần # khỏi địa chỉ */
@@ -214,7 +265,7 @@ $('idgo').onclick=()=>{
   const v=$('idin').value.trim().toUpperCase().replace(/^VTV[_-]?/,'');
   if(!/^[0-9A-F]{6}$/.test(v)){alert('Mã gồm 6 chữ số, ví dụ 030375 hoặc vtv_030375');return;}
   ID=v;try{localStorage.setItem('vp_id',v)}catch(e){}
-  $('setup').style.display='none';S=null;SET=null;H24=[];H7=[];K=null;connect();render();renderSet();
+  $('setupmsg').textContent='';$('setup').style.display='none';S=null;SET=null;H24=[];H7=[];K=null;connect();render();renderSet();
 };
 
 /* ---------- MQTT ---------- */
@@ -222,7 +273,8 @@ function connect(){
   if(cli){try{cli.end(true)}catch(e){}}
   online=false;paintHead();
   const base='vienpin/'+ID;
-  cli=mqtt.connect(BROKER,{clientId:'vpweb-'+Math.random().toString(16).slice(2,10),reconnectPeriod:3000,connectTimeout:8000});
+  cli=mqtt.connect(BROKER,{clientId:'vpweb-'+Math.random().toString(16).slice(2,10),username:MQTT_USER,password:MQTT_PASS,reconnectPeriod:3000,connectTimeout:8000});
+  cli.on('error',e=>{if(/refused|not authorized|bad user/i.test(String(e&&e.message||e)))authFailed();});
   cli.on('connect',()=>cli.subscribe(['state','status','hist','hist7','kwh','set'].map(k=>base+'/'+k)));
   cli.on('close',()=>{online=false;paintHead();});
   cli.on('message',(t,m)=>{
@@ -233,11 +285,17 @@ function connect(){
       else if(k==='hist'){H24=parseHist(s);drawCharts();}
       else if(k==='hist7'){H7=parseHist(s);drawCharts();}
       else if(k==='kwh'){K=JSON.parse(s);drawCharts();}
-      else if(k==='set'){SET=JSON.parse(s).v;renderSet();}
+      else if(k==='set'){SET=JSON.parse(s).v;renderSet();render();}
     }catch(e){console.warn('bad msg',k,e)}
   });
 }
 setInterval(()=>{if(online&&lastRx&&Date.now()-lastRx>10000){online=false;paintHead();render();}},2000);
+function authFailed(){
+  try{cli.end(true)}catch(e){}
+  online=false;S=null;paintHead();
+  $('setupmsg').textContent='Không đăng nhập được máy chủ. Kiểm tra MQTT_USER / MQTT_PASS trong index.html.';
+  showSetup();
+}
 function send(cmd){
   if(!cli||!cli.connected){alert('Chưa kết nối MQTT');return;}
   cli.publish('vienpin/'+ID+'/cmd',cmd);
@@ -253,6 +311,7 @@ function toggleMos(k){
   const cur=S.S?(k==='chg'?S.S.c:S.S.d):(k==='chg'?L.mc:L.md),nv=cur?0:1;
   if(confirm((nv?'BẬT':'TẮT')+' MOS '+(k==='chg'?'sạc':'xả')+'?'))send('sw:'+k+':'+nv);
 }
+$('p-chg').onclick=()=>toggleMos('chg');$('p-dis').onclick=()=>toggleMos('dis');$('p-bal').onclick=()=>$('tg-bal').click();
 $('tg-bal').onclick=()=>{
   const sb=S&&S.S?S.S.b:null;
   if(sb==null){alert('Chưa đọc được cài đặt từ BMS, thử lại sau vài giây');return;}
@@ -269,26 +328,29 @@ $('b-rst').onclick=()=>confirm('Khởi động lại thiết bị?')&&send('rebo
 const ALARMS=['Điện trở dây cân bằng cao','MOS quá nhiệt','Số cell sai','Cảm biến dòng lỗi','Cell quá áp','Pack quá áp','Quá dòng sạc','Ngắn mạch sạc','Sạc quá nhiệt','Sạc nhiệt độ thấp','Lỗi giao tiếp','Cell thấp áp','Pack thấp áp','Quá dòng xả','Ngắn mạch xả','Xả quá nhiệt'];
 const T=x=>(x==null||x<-50)?null:x;
 const fmtUp=s=>{s=+s||0;const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);return (d?d+' ngày ':'')+h+'g '+m+'p'};
-function paintHead(){$('hd').classList.toggle('on',online);if(!S)$('title').textContent=online?'Chờ dữ liệu…':'Đang kết nối…';}
+function paintHead(){$('hd').classList.toggle('on',online);if(!S){const sl=$('stline');if(sl){sl.textContent=online?'Chờ dữ liệu…':'Đang kết nối…';sl.className='stline';}}}
 function setBanner(cls,msg){$('banner').className='banner '+cls;$('bt').textContent=msg;}
 
 function render(){
   paintHead();
   if(!ID)return;
   const L=S&&S.L;
-  if(S){$('title').textContent=online?('Hoạt động '+fmtUp(S.up)):'Thiết bị offline';}
+  const sl=$('stline');
+  if(S){sl.textContent=online?'Thiết bị đang hoạt động':'Thiết bị ngoại tuyến';sl.className='stline '+(online?'ok':'bad');}
+  const upS=S?(()=>{const t=+S.up||0;return Math.floor(t/86400)+'D'+Math.floor(t%86400/3600)+'H'+Math.floor(t%3600/60)+'M';})():'--';
+  $('chipId').textContent='ID:'+(ID||'--');$('chipUp').textContent='TIME:'+upS;$('chipCy').textContent='CYCLE:'+(L&&L.cy!=null?L.cy:'--');
   const cv=L?L.cv:[];
   const vmax=cv.length?Math.max(...cv):null,vmin=cv.length?Math.min(...cv):null;
   const tm=T(L&&L.tm),t1=T(L&&L.t1),t2=T(L&&L.t2);
   const tmax=Math.max(...[tm,t1,t2].filter(x=>x!=null),-999);
-  const on=(id,v)=>{const e=$(id);e.textContent=v?'Bật':'Tắt';e.className=v?'on-t':'off-t'};
+  const on=(id,v)=>{const e=$(id);e.textContent=v?'Bật':'Tắt';e.className='cap '+(v?'on-t':'off-t')};
   const sb=S&&S.S?S.S.b:null,act=!!L&&(L.ba>0||Math.abs(L.bal)>0.001);
   if(L){on('s-chg',L.mc);on('s-dis',L.md);
     const e=$('s-bal');
-    if(sb===1){e.textContent=act?'Đang CB':'Bật';e.className='on-t';}
-    else if(sb===0){e.textContent='Tắt';e.className='off-t';}
-    else{e.textContent=act?'Đang CB':'--';e.className=act?'on-t':'';}}
-  else['s-chg','s-dis','s-bal'].forEach(i=>{$(i).textContent='--';$(i).className=''});
+    if(sb===1){e.textContent=act?'Đang CB':'Bật';e.className='cap on-t';}
+    else if(sb===0){e.textContent='Tắt';e.className='cap off-t';}
+    else{e.textContent=act?'Đang CB':'--';e.className='cap '+(act?'on-t':'');}}
+  else['s-chg','s-dis','s-bal'].forEach(i=>{$(i).textContent='--';$(i).className='cap'});
   $('soc').textContent=L?L.soc:'--';
   $('arc').setAttribute('stroke-dasharray',(L?Math.max(0,Math.min(100,L.soc)):0)+' 100');
   $('volt').textContent=L?f(L.v,2)+'V':'--V';$('amp').textContent=L?f(L.a,2)+'A':'--A';
@@ -298,8 +360,10 @@ function render(){
   $('tmax').textContent=tmax>-999?f(tmax,1):'--';$('soh').textContent=L?L.soh:'--';
   const w=L?(L.a>=0?L.w:-L.w):null;
   $('a2').textContent=L?f(L.a,2):'--';$('w2').textContent=f(w,1);
-  const p=L?Math.max(-50,Math.min(50,L.a/2)):0,pb=$('pbar');   // ±100A = đầy thanh
-  pb.style.width=Math.abs(p)+'%';pb.style.left=p>=0?'50%':(50+p)+'%';pb.style.background=p>=0?'var(--blue)':'var(--warn)';
+  const imx=L&&SET&&SET.length>=32?(L.a>=0?SET[11]:SET[14]):null,pmx=imx?imx*L.v:null,pb=$('pbar');
+  let pw=0;if(L){pw=pmx?Math.min(100,Math.abs(w)/pmx*100):Math.min(100,Math.abs(L.a));}
+  pb.style.width=pw/2+'%';pb.style.left=L&&L.a<0?(50-pw/2)+'%':'50%';pb.style.background=L&&L.a<0?'var(--warn)':'var(--blue)';
+  $('pmax').textContent=pmx?'/ '+Math.round(pmx):'';
   $('mode').textContent=!L?'--':L.a>0.2?'Đang sạc':L.a<-0.2?'Đang xả':'Chờ';
   // cảnh báo
   if(!online&&S)setBanner('bad','Thiết bị offline — số liệu có thể đã cũ');
@@ -318,6 +382,9 @@ function render(){
   ce.innerHTML=cv.map((v,i)=>`<div class="cell${vmax!==vmin&&i===imax?' hi':''}${vmax!==vmin&&i===imin?' lo':''}"><i>${i+1}</i><span>${v.toFixed(3)}</span></div>`).join('');
   const re=$('res');re.style.gridTemplateColumns=ce.style.gridTemplateColumns;
   re.innerHTML=(L&&L.r?L.r:[]).map((v,i)=>`<div class="cell" style="font-size:18px"><i>${i+1}</i><span>${v.toFixed(3)}</span></div>`).join('');
+  const cpf=(v,i,cls)=>`<div class="cp${cls}"><i>${String(i+1).padStart(2,'0')}</i><b>${v.toFixed(3)}</b></div>`;
+  $('hcells').innerHTML=cv.map((v,i)=>cpf(v,i,(vmax!==vmin&&i===imax?' hi':'')+(vmax!==vmin&&i===imin?' lo':''))).join('');
+  $('hres').innerHTML=(L&&L.r?L.r:[]).map((v,i)=>cpf(v,i,' r')).join('');
   // Cài đặt
   $('tg-chg').classList.toggle('on',!!(S&&S.S?S.S.c:(L&&L.mc)));$('tg-dis').classList.toggle('on',!!(S&&S.S?S.S.d:(L&&L.md)));
   $('tg-bal').classList.toggle('on',sb===1);
