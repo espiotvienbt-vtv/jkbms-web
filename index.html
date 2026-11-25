@@ -240,7 +240,7 @@ nav{background:#17191b;border-top:1px solid #26292c}
 const $=id=>document.getElementById(id);
 const f=(v,d)=>(v==null||isNaN(v))?'--':Number(v).toFixed(d);
 const BROKER='wss://i2176b42.ala.asia-southeast1.emqxsl.com:8084/mqtt';   // broker riêng EMQX Cloud (WebSocket TLS)
-const MQTT_USER='';   // <-- tài khoản DÙNG CHUNG tạo trên EMQX (giống trong firmware)
+const MQTT_USER='vienpin';   // <-- tài khoản DÙNG CHUNG tạo trên EMQX (giống trong firmware)
 const MQTT_PASS='V76a07481@';        // <-- mật khẩu của tài khoản đó
 let ID=null,cli=null,S=null,SET=null,online=false,lastRx=0,H24=[],H7=[],K=null,hmode='24',kmode='d';
 try{ID=localStorage.getItem('vp_id')}catch(e){}
