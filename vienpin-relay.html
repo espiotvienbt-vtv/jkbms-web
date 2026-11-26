@@ -48,7 +48,7 @@
   .btn:hover{border-color:var(--accent)}
   .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#042027;border:none}
   .btn.danger{color:var(--danger)}
-  .btn[disabled],.btn.disabled{opacity:.45;pointer-events:none}
+  .btn[disabled]{opacity:.45;pointer-events:none}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
   .card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);
@@ -79,11 +79,6 @@
   .kv .k{font-size:12px;color:var(--muted)}
   .kv .v{font-size:16px;font-weight:700;margin-top:4px;word-break:break-all}
 
-  .ota p{margin:0 0 10px;color:var(--muted);font-size:14px;line-height:1.55}
-  .ota ol{margin:0 0 14px;padding-left:20px;color:var(--muted);font-size:14px;line-height:1.7}
-  .ota b{color:var(--text)}
-  .ota .actions{display:flex;gap:10px;flex-wrap:wrap}
-  .note{margin-top:12px;font-size:12px;color:var(--muted)}
 
   dialog{border:1px solid var(--line);border-radius:20px;background:var(--bg2);color:var(--text);padding:0;
          width:min(440px,calc(100vw - 28px))}
@@ -137,22 +132,6 @@
       <div class="kv"><div class="k">Phiên bản FW</div><div class="v" id="infoFw">—</div></div>
       <div class="kv"><div class="k">Chạy được</div><div class="v" id="infoUp">—</div></div>
     </div>
-  </div>
-
-  <h2>Cập nhật firmware (OTA)</h2>
-  <div class="card ota">
-    <p>Nạp firmware mới cho board bằng file <b>.bin</b>, không cần cắm cáp USB.</p>
-    <ol>
-      <li>Trong Arduino IDE chọn <b>Sketch → Export Compiled Binary</b> để tạo file <b>.bin</b>.</li>
-      <li>Điện thoại hoặc máy tính phải cùng mạng WiFi với board.</li>
-      <li>Bấm <b>Mở trang cập nhật</b>, đăng nhập, chọn file <b>.bin</b> rồi bấm Update.</li>
-      <li>Chờ board tự khởi động lại, không rút nguồn khi đang nạp.</li>
-    </ol>
-    <div class="actions">
-      <a class="btn primary disabled" id="btnOta" href="#" target="_blank" rel="noopener">⬆️ Mở trang cập nhật</a>
-      <button class="btn" id="btnCopyIp" disabled>📋 Sao chép IP</button>
-    </div>
-    <div class="note">Tài khoản mặc định <b>admin</b>, mật khẩu đặt trong firmware (hằng số <code>OTA_PASS</code>). Trang cập nhật là http nội bộ nên chỉ mở được khi cùng mạng LAN với board.</div>
   </div>
 
   <footer>VIÊN PIN SMART IoT · MQTT qua TLS</footer>
@@ -327,17 +306,6 @@
     $('#infoRssi').textContent = (info.rssi !== undefined) ? info.rssi + ' dBm' : '—';
     $('#infoFw').textContent   = info.fw || '—';
     $('#infoUp').textContent   = (info.up !== undefined) ? fmtUp(info.up) : '—';
-
-    var ota = $('#btnOta'), cp = $('#btnCopyIp');
-    if (info.ip){
-      ota.href = 'http://' + info.ip + '/update';
-      ota.classList.remove('disabled');
-      cp.disabled = false;
-    } else {
-      ota.href = '#';
-      ota.classList.add('disabled');
-      cp.disabled = true;
-    }
   }
 
   // ====== MQTT ======
@@ -469,12 +437,6 @@
   $('#inName').addEventListener('keydown', function(e){ if (e.key === 'Enter') saveRename(); });
   $('#btnAllOn').addEventListener('click', function(){ sendCmd('ALL_ON'); });
   $('#btnAllOff').addEventListener('click', function(){ sendCmd('ALL_OFF'); });
-  $('#btnOta').addEventListener('click', function(e){ if (this.classList.contains('disabled')) e.preventDefault(); });
-  $('#btnCopyIp').addEventListener('click', function(){
-    if (!info.ip) return;
-    if (navigator.clipboard) navigator.clipboard.writeText(info.ip).then(function(){ toast('Đã sao chép ' + info.ip); });
-    else toast('IP: ' + info.ip);
-  });
 
   // ====== KHỞI ĐỘNG ======
   loadNames();
