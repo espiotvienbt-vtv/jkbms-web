@@ -1,4 +1,14 @@
 
+
+Chuyển đến nội dung
+Sử dụng Gmail bằng trình đọc màn hình
+Cuộc trò chuyện
+Đã dùng 76% trên tổng số 15 GB
+Điều khoản · Bảo mật · Chính sách chương trình
+Hoạt động gần đây nhất của tài khoản: 4 phút trước
+Chi tiết
+index.html
+100%
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -121,6 +131,13 @@ h3.sec:before{display:none}
 .cp.r b{color:#5fd36a}
 nav{background:#17191b;border-top:1px solid #26292c}
 @media(max-width:380px){.cp{font-size:12.5px;padding:8px 4px}.sp{font-size:11px}}
+
+.er{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid #2a2d30;font-size:14.5px}
+.er>span:first-child{flex:1}.er small{display:block;margin:2px 0 0;font-size:11px;color:var(--mut)}
+.er .in{display:flex;align-items:center;gap:4px}
+.er input{width:96px;padding:8px;font-size:15.5px;text-align:right;background:#0e0f10;border:1px solid #3a3d40;border-radius:8px;color:#fff;font-family:inherit}
+.er.dirty input{border-color:#ffb020;background:#2b2410}
+.er em{font-style:normal;color:var(--mut);font-size:12px;min-width:20px}
 </style>
 </head>
 <body>
@@ -143,6 +160,7 @@ nav{background:#17191b;border-top:1px solid #26292c}
   <div class="sp" id="p-dis"><span>XẢ</span><b id="s-dis" class="cap">--</b></div>
   <div class="sp" id="p-bal"><span>CÂN BẰNG</span><b id="s-bal" class="cap">--</b></div>
  </div>
+ <div id="balnote" class="note" style="text-align:center;margin:-4px 0 10px;display:none"></div>
  <div class="ring">
   <svg viewBox="0 0 200 200">
    <defs><linearGradient id="gb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7d6ac"/><stop offset="1" stop-color="#c58a52"/></linearGradient></defs>
@@ -206,12 +224,16 @@ nav{background:#17191b;border-top:1px solid #26292c}
   <div class="ctl"><span>MOS xả</span><button class="tg" id="tg-dis"></button></div>
   <div class="ctl"><span>Cân bằng</span><button class="tg" id="tg-bal"></button></div>
  </div>
- <h3 style="margin-top:20px">Thông số BMS (chỉ xem)</h3>
+ <h3 style="margin-top:20px">Thông số BMS</h3>
  <div class="card">
   <div class="note" id="setnote">Đang đọc từ BMS…</div>
+  <div class="ctl" id="unlockrow" style="display:none;padding:6px 0"><span>Mở khóa sửa thông số</span><button class="tg" id="tg-unlock"></button></div>
   <div class="kv" id="setlist" style="grid-template-columns:1fr"></div>
-  <button class="btn sm" id="b-readset" style="margin-top:10px">Đọc lại từ BMS</button>
-  <p class="note">Chỉ xem. Muốn sửa thông số bảo vệ, hãy dùng app JK BMS để đảm bảo an toàn pin.</p>
+  <div id="savemsg" class="note" style="margin-top:8px"></div>
+  <button class="btn w" id="b-save" style="display:none;background:#e08a00;color:#1b1100;font-weight:700">LƯU CÁC THAY ĐỔI XUỐNG BMS</button>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn sm" id="b-readset">Đọc lại từ BMS</button><button class="btn sm" id="b-export">Xuất tham số</button><button class="btn sm" id="b-import">Nhập tham số</button></div>
+  <input type="file" id="f-import" accept=".json,application/json" style="display:none">
+  <p class="note">Công tắc sạc/xả/cân bằng nằm ở mục Điều khiển phía trên. Tự khóa lại sau 5 phút.</p>
  </div>
  <h3 style="margin-top:20px">Dò và kết nối BMS</h3>
  <div class="card">
@@ -242,7 +264,7 @@ const f=(v,d)=>(v==null||isNaN(v))?'--':Number(v).toFixed(d);
 const BROKER='wss://i2176b42.ala.asia-southeast1.emqxsl.com:8084/mqtt';   // broker riêng EMQX Cloud (WebSocket TLS)
 const MQTT_USER='vienpin';   // <-- tài khoản DÙNG CHUNG tạo trên EMQX (giống trong firmware)
 const MQTT_PASS='V76a07481@';        // <-- mật khẩu của tài khoản đó
-let ID=null,cli=null,S=null,SET=null,online=false,lastRx=0,H24=[],H7=[],K=null,hmode='24',kmode='d';
+let ID=null,cli=null,S=null,SET=null,UNLOCK=false,EDIT={},UTM=null,SAVING=false,online=false,lastRx=0,H24=[],H7=[],K=null,hmode='24',kmode='d';
 try{ID=localStorage.getItem('vp_id')}catch(e){}
 /* Quét QR có gắn #ID (vd .../jkbms-web/#030375): tự nhận ID, lưu lại và xoá phần # khỏi địa chỉ */
 try{const m=location.hash.match(/^#(?:vtv[_-]?)?([0-9a-f]{6})$/i);
@@ -374,7 +396,7 @@ function render(){
   // Trạng thái
   const kv=L?[['Công suất',f(w,1)+' W'],['TB pin',f(L.avg,3)+' V'],['Dung lượng',f(L.cap,1)+' Ah'],['Chênh áp',L.dv+' mV'],['Còn lại',f(L.ah,1)+' Ah'],['Dòng cân bằng',f(L.bal,2)+' A'],
     ['Nhiệt MOS',f(tm,1)+' °C'],['SOH',L.soh+' %'],['Nhiệt pin 1',f(t1,1)+' °C'],['Nhiệt pin 2',f(t2,1)+' °C'],['Điện áp',f(L.v,2)+' V'],['Dòng điện',f(L.a,2)+' A'],
-    ['Số chu kỳ',L.cy!=null?L.cy:'--'],['Dung lượng chu kỳ',L.cc!=null?f(L.cc,1)+' Ah':'--'],['Thời gian chạy',L.rt!=null?fmtUp(L.rt):'--'],
+    ['Số chu kỳ',L.cy!=null?L.cy:'--'],['Dung lượng chu kỳ',L.cc!=null?f(L.cc,1)+' Ah':'--'],['Tổng thời gian chạy',L.rt!=null?fmtUp(L.rt):'--'],['Log chi tiết',L.lg!=null?L.lg:'--'],['Chế độ ngủ',L.sl!=null?L.sl+' s':'--'],
     ['Cân bằng',sb===0?'Tắt':(act?(L.ba===2?'Đang CB (khi xả)':'Đang CB'):(sb===1?'Bật (chờ)':'--'))]]:[];
   $('kv').innerHTML=kv.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')||'<span class="note">Chưa có dữ liệu</span>';
   const ce=$('cells');ce.style.gridTemplateColumns='repeat('+Math.max(2,Math.ceil(cv.length/8))+',1fr)';
@@ -382,6 +404,11 @@ function render(){
   ce.innerHTML=cv.map((v,i)=>`<div class="cell${vmax!==vmin&&i===imax?' hi':''}${vmax!==vmin&&i===imin?' lo':''}"><i>${i+1}</i><span>${v.toFixed(3)}</span></div>`).join('');
   const re=$('res');re.style.gridTemplateColumns=ce.style.gridTemplateColumns;
   re.innerHTML=(L&&L.r?L.r:[]).map((v,i)=>`<div class="cell" style="font-size:18px"><i>${i+1}</i><span>${v.toFixed(3)}</span></div>`).join('');
+  let bn='';
+  if(L&&sb===1&&!act&&SET&&SET.length>=32){const t=SET[5],sv=SET.length>=34?SET[33]:null;
+    if(L.dv/1000<t)bn='Chưa cân bằng: chênh áp cell ('+L.dv+' mV) thấp hơn "Chênh lệch áp cân bằng" ('+Math.round(t*1000)+' mV).';
+    else if(sv!=null&&vmax<sv)bn='Chưa cân bằng: điện áp cell cao nhất ('+vmax.toFixed(3)+' V) chưa tới "Điện áp bắt đầu cân bằng" ('+sv.toFixed(3)+' V).';}
+  const bnEl=$('balnote');bnEl.textContent=bn;bnEl.style.display=bn?'block':'none';
   const cpf=(v,i,cls)=>`<div class="cp${cls}"><i>${String(i+1).padStart(2,'0')}</i><b>${v.toFixed(3)}</b></div>`;
   $('hcells').innerHTML=cv.map((v,i)=>cpf(v,i,(vmax!==vmin&&i===imax?' hi':'')+(vmax!==vmin&&i===imin?' lo':''))).join('');
   $('hres').innerHTML=(L&&L.r?L.r:[]).map((v,i)=>cpf(v,i,' r')).join('');
@@ -398,17 +425,97 @@ function render(){
       .map(([k,v])=>`<div><span>${k}</span><b>${esc(v)}</b></div>`).join('');
   }
 }
-const PN=[['Điện áp ngủ thông minh','V',3],['Bảo vệ thấp áp cell (UVP)','V',3],['Phục hồi thấp áp cell (UVPR)','V',3],['Bảo vệ quá áp cell (OVP)','V',3],['Phục hồi quá áp cell (OVPR)','V',3],
- ['Điện áp kích hoạt cân bằng','V',3],['Điện áp SOC 100%','V',3],['Điện áp SOC 0%','V',3],['Điện áp sạc yêu cầu (RCV)','V',3],['Điện áp float yêu cầu (RFV)','V',3],['Điện áp tắt nguồn','V',3],
- ['Dòng sạc tối đa','A',1],['Trễ bảo vệ quá dòng sạc','s',0],['Thời gian phục hồi quá dòng sạc','s',0],['Dòng xả tối đa','A',1],['Trễ bảo vệ quá dòng xả','s',0],['Thời gian phục hồi quá dòng xả','s',0],
- ['Thời gian phục hồi ngắn mạch','s',0],['Dòng cân bằng tối đa','A',2],['Quá nhiệt khi sạc','°C',1],['Phục hồi quá nhiệt khi sạc','°C',1],['Quá nhiệt khi xả','°C',1],['Phục hồi quá nhiệt khi xả','°C',1],
- ['Thấp nhiệt khi sạc','°C',1],['Phục hồi thấp nhiệt khi sạc','°C',1],['Quá nhiệt MOS','°C',1],['Phục hồi quá nhiệt MOS','°C',1],['Số cell','',0],['Công tắc sạc','sw',0],['Công tắc xả','sw',0],['Công tắc cân bằng','sw',0],['Dung lượng danh định','Ah',1]];
+const PN=[['U ngủ thông minh','V',3],['Bảo vệ thấp áp cell','V',3],['Phục hồi áp thấp cell','V',3],['Điện áp quá nạp cell','V',3],['Khôi phục quá sạc','V',3],
+ ['Chênh lệch áp cân bằng','V',3],['Điện áp SOC-100%','V',3],['Điện áp SOC-0%','V',3],['Điện áp sạc yêu cầu (RCV)','V',3],['Điện áp float yêu cầu (RFV)','V',3],['Điện áp tắt tự động','V',3],
+ ['Dòng sạc liên tục','A',1],['Trễ quá dòng sạc','s',0],['Gỡ quá dòng sạc','s',0],['Dòng xả liên tục','A',1],['Trễ quá dòng xả','s',0],['Gỡ quá dòng xả','s',0],
+ ['Thời gian gỡ ngắn mạch','s',0],['Dòng cân bằng tối đa','A',2],['OTP sạc','°C',1],['Khôi phục quá nhiệt sạc','°C',1],['Bảo vệ quá nhiệt khi xả','°C',1],['Khôi phục quá nhiệt xả','°C',1],
+ ['Bảo vệ sạc nhiệt độ thấp','°C',1],['Phục hồi UTPR sạc','°C',1],['Quá nhiệt MOS','°C',1],['Phục hồi quá nhiệt MOS','°C',1],['Số lượng cell','',0],['Công tắc sạc','sw',0],['Công tắc xả','sw',0],['Công tắc cân bằng','sw',0],['Dung lượng','Ah',1],
+ ['Trễ ngắn mạch (chỉ xem)','µs',0],['Điện áp bắt đầu cân bằng','V',3],['Bảo vệ nhiệt độ thấp khi xả (chỉ xem)','°C',0],['Phục hồi xả nhiệt độ thấp (chỉ xem)','°C',0]];
+const PMIN=[1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,0,-40,-40,-40,-40,-40,-40,-40,-40,1,0,0,0,1,0,1,0,0];
+const PMAX=[4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,300,3600,3600,400,3600,3600,3600,10,125,125,125,125,125,125,125,125,32,0,0,0,1000,0,4.5,0,0];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const editable=i=>i<=27||i===31||i===33;
+function dirtyList(){return Object.keys(EDIT).map(Number).filter(i=>{const v=parseFloat(EDIT[i]);return !isNaN(v)&&SET&&Math.abs(v-SET[i])>=Math.pow(10,-PN[i][2])/2;});}
+function updSave(){const n=dirtyList().length,b=$('b-save');if(!b)return;b.style.display=(UNLOCK&&n)?'block':'none';b.textContent='LƯU '+n+' THAY ĐỔI XUỐNG BMS';b.disabled=SAVING;}
+function lock(v){UNLOCK=v;clearTimeout(UTM);if(v)UTM=setTimeout(()=>{UNLOCK=false;EDIT={};renderSet();},300000);else EDIT={};renderSet();}
 function renderSet(){
   const nt=$('setnote'),ls=$('setlist');if(!nt)return;
-  if(!SET||SET.length<32){nt.textContent='Đang đọc từ BMS… (cần BMS đã kết nối)';ls.innerHTML='';return;}
-  nt.textContent='';
-  ls.innerHTML=PN.map(([n,u,d],i)=>{const v=SET[i];const t=u==='sw'?(v?'Bật':'Tắt'):Number(v).toFixed(d)+(u?' '+u:'');return `<div><span>${n}</span><b>${t}</b></div>`;}).join('');
+  if(!SET||SET.length<32){nt.textContent='Đang đọc từ BMS… (cần BMS đã kết nối)';ls.innerHTML='';$('unlockrow').style.display='none';updSave();return;}
+  const can=!!(S&&S.pw===1);
+  nt.textContent=can?'':'Thiết bị này chưa bật sửa thông số từ xa (chỉ xem).';
+  $('unlockrow').style.display=can?'flex':'none';
+  $('tg-unlock').classList.toggle('on',can&&UNLOCK);
+  const ed=can&&UNLOCK;
+  if(ed&&document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#setlist'))return; // đang gõ thì không vẽ lại
+  ls.innerHTML=PN.map(([n,u,d],i)=>{
+    const v=SET[i];
+    if(v==null||isNaN(v))return '';
+    if(ed&&editable(i)){
+      const cur=EDIT[i]!==undefined?EDIT[i]:Number(v).toFixed(d);
+      const dirty=EDIT[i]!==undefined&&Math.abs(parseFloat(EDIT[i])-v)>=Math.pow(10,-d)/2;
+      return `<div class="er${dirty?' dirty':''}"><span>${n}<small>${PMIN[i]} đến ${PMAX[i]} ${u}</small></span><span class="in"><input type="number" inputmode="decimal" step="${Math.pow(10,-d)}" data-i="${i}" value="${cur}"><em>${u}</em></span></div>`;
+    }
+    const t=u==='sw'?(v?'Bật':'Tắt'):Number(v).toFixed(d)+(u?' '+u:'');
+    return `<div><span>${n}</span><b>${t}</b></div>`;
+  }).join('');
+  ls.querySelectorAll('input[data-i]').forEach(inp=>inp.oninput=()=>{
+    const i=+inp.dataset.i;EDIT[i]=inp.value;
+    const dirty=Math.abs(parseFloat(inp.value)-SET[i])>=Math.pow(10,-PN[i][2])/2;
+    inp.closest('.er').classList.toggle('dirty',dirty);updSave();});
+  updSave();
 }
+$('b-export').onclick=()=>{
+  if(!SET||SET.length<32){alert('Chưa đọc được thông số từ BMS');return;}
+  const o={app:'vienpin-bms',id:ID,fw:S&&S.fw,time:new Date().toISOString(),params:SET.map((v,i)=>({i,name:PN[i][0],unit:PN[i][1],value:+Number(v).toFixed(PN[i][2])}))};
+  const a=document.createElement('a');a.download='BMS_'+ID+'_'+new Date().toISOString().slice(0,10)+'.json';
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(o,null,1)],{type:'application/json'}));document.body.appendChild(a);a.click();a.remove();
+};
+$('b-import').onclick=()=>{
+  if(!(S&&S.pw===1)){alert('Thiết bị này chưa bật sửa thông số từ xa');return;}
+  if(!UNLOCK){alert('Hãy bật "Mở khóa sửa thông số" trước khi nhập.');return;}
+  $('f-import').value='';$('f-import').click();
+};
+$('f-import').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{
+    const o=JSON.parse(r.result);if(!o||!Array.isArray(o.params))throw new Error('Sai định dạng file');
+    if(o.id&&o.id!==ID&&!confirm('File này xuất từ thiết bị khác (ID '+o.id+'). Vẫn nạp các giá trị vào ô sửa?'))return;
+    let n=0;
+    o.params.forEach(p=>{const i=+p.i,v=parseFloat(p.value);
+      if(((i>=0&&i<=26)||i===33)&&!isNaN(v)&&v>=PMIN[i]&&v<=PMAX[i]){EDIT[i]=String(v);n++;}});   // không nhập số cell và dung lượng để tránh nhầm giữa các pack
+    renderSet();
+    $('savemsg').style.color='';$('savemsg').textContent='Đã nạp '+n+' thông số từ file vào ô sửa (không nhập Số cell và Dung lượng). Kiểm tra các ô màu cam rồi bấm LƯU.';
+  }catch(err){alert('Không đọc được file: '+err.message);}};
+  r.readAsText(f);
+};
+$('tg-unlock').onclick=()=>{
+  if(!UNLOCK&&!confirm('MỞ KHÓA sửa thông số BMS?\n\nSai thông số bảo vệ có thể làm hỏng pin hoặc gây nguy hiểm. Chỉ sửa khi hiểu rõ.'))return;
+  lock(!UNLOCK);};
+$('b-save').onclick=async()=>{
+  const items=dirtyList().map(i=>[i,parseFloat(EDIT[i])]);
+  if(!items.length)return;
+  for(const [i,v] of items){if(v<PMIN[i]||v>PMAX[i]){alert(PN[i][0]+': giá trị phải từ '+PMIN[i]+' đến '+PMAX[i]+' '+PN[i][1]);return;}}
+  const val=i=>{const f=items.find(x=>x[0]===i);return f?f[1]:SET[i];};
+  const w=[];
+  if(val(1)>=val(2))w.push('Thấp áp (UVP) nên nhỏ hơn Phục hồi thấp áp (UVPR)');
+  if(val(4)>=val(3))w.push('Phục hồi quá áp (OVPR) nên nhỏ hơn Quá áp (OVP)');
+  if(val(2)>=val(4))w.push('Phục hồi thấp áp nên nhỏ hơn Phục hồi quá áp');
+  if(items.some(x=>x[0]===27))w.push('SỐ CELL phải đúng với số cell thực tế của pack. Đặt sai, BMS đo sai và có thể ngắt bảo vệ.');
+  const lst=items.map(([i,v])=>'• '+PN[i][0]+': '+SET[i].toFixed(PN[i][2])+' → '+v.toFixed(PN[i][2])+' '+PN[i][1]).join('\n');
+  if(!confirm('Ghi '+items.length+' thông số xuống BMS?\n\n'+lst+(w.length?'\n\nLƯU Ý:\n'+w.join('\n'):'')+'\n\nSai thông số có thể làm hỏng pin.'))return;
+  SAVING=true;updSave();$('savemsg').style.color='';
+  for(let k=0;k<items.length;k++){
+    const [i,v]=items[k];$('savemsg').textContent='Đang ghi '+(k+1)+'/'+items.length+': '+PN[i][0]+'…';
+    send('par:'+i+':'+(+v.toFixed(3)));await sleep(1600);
+  }
+  send('readset');$('savemsg').textContent='Đã gửi, đang đọc lại từ BMS…';await sleep(4500);
+  const bad=items.filter(([i,v])=>Math.abs(SET[i]-v)>=Math.pow(10,-PN[i][2])/2);
+  EDIT={};SAVING=false;
+  if(bad.length){$('savemsg').style.color='var(--bad)';$('savemsg').textContent='BMS chưa nhận: '+bad.map(([i])=>PN[i][0]).join(', ')+'. Có thể giá trị bị BMS từ chối hoặc chưa đọc lại kịp, bấm "Đọc lại từ BMS" để kiểm tra.';}
+  else{$('savemsg').style.color='var(--ok)';$('savemsg').textContent='Đã ghi xong và BMS xác nhận.';}
+  renderSet();
+};
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 
 /* ---------- Biểu đồ (SVG thuần) ---------- */
@@ -463,3 +570,4 @@ render();renderSet();drawCharts();
 </script>
 </body>
 </html>
+Hiển thị index.html.
