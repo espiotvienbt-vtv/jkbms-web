@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VIÊN PIN SMART IoT</title>
+<meta name="theme-color" content="#0b1220">
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#101a30; --card:#131d33; --line:#22304f;
+    --text:#e8eefc; --muted:#8b98b8; --accent:#2dd4bf; --accent2:#38bdf8;
+    --off:#334155; --danger:#f87171; --warn:#fbbf24; --ok:#34d399;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;min-height:100%}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    color:var(--text);
+    background:radial-gradient(1200px 600px at 10% -10%,#16315a55,transparent),
+               radial-gradient(900px 500px at 100% 0%,#0f766e44,transparent),var(--bg);
+    background-attachment:fixed;
+    padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:18px 16px 40px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:22px;
+        background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 8px 24px #2dd4bf33}
+  h1{font-size:18px;margin:0;letter-spacing:.3px}
+  .sub{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .icon-btn{border:1px solid var(--line);background:var(--card);color:var(--text);width:42px;height:42px;
+            border-radius:12px;font-size:18px;cursor:pointer}
+  .icon-btn:hover{border-color:var(--accent)}
+
+  .status-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+  .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
+        background:var(--card);border:1px solid var(--line);font-size:13px;color:var(--muted)}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--off)}
+  .chip.ok .dot{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+  .chip.bad .dot{background:var(--danger)}
+  .chip.wait .dot{background:var(--warn)}
+  .chip.ok{color:var(--text)}
+
+  .toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .btn{border:1px solid var(--line);background:var(--card);color:var(--text);padding:11px 16px;border-radius:12px;
+       font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#042027;border:none}
+  .btn.danger{color:var(--danger)}
+  .btn[disabled],.btn.disabled{opacity:.45;pointer-events:none}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);
+        border-radius:var(--radius);padding:16px}
+  .relay{display:flex;flex-direction:column;gap:14px;transition:border-color .2s, box-shadow .2s}
+  .relay.on{border-color:#2dd4bf88;box-shadow:0 0 0 1px #2dd4bf33,0 10px 30px #2dd4bf14}
+  .relay.pending{opacity:.7}
+  .r-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .r-ico{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:#0c1426;border:1px solid var(--line)}
+  .relay.on .r-ico{background:#0f3b3a;border-color:#2dd4bf66}
+  .r-name{font-size:16px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .r-state{font-size:12px;color:var(--muted);margin-top:3px}
+  .relay.on .r-state{color:var(--accent)}
+  .r-meta{min-width:0;flex:1}
+  .r-bottom{display:flex;align-items:center;justify-content:space-between}
+  .edit{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;padding:6px 8px;border-radius:8px}
+  .edit:hover{color:var(--text);background:#ffffff0d}
+
+  .switch{position:relative;width:64px;height:36px;display:inline-block}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{position:absolute;inset:0;background:var(--off);border-radius:999px;transition:.25s;cursor:pointer}
+  .slider::before{content:"";position:absolute;height:28px;width:28px;left:4px;top:4px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 2px 6px #0006}
+  .switch input:checked + .slider{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+  .switch input:checked + .slider::before{transform:translateX(28px)}
+
+  h2{font-size:15px;margin:26px 0 12px;color:var(--muted);font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+  .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .kv .k{font-size:12px;color:var(--muted)}
+  .kv .v{font-size:16px;font-weight:700;margin-top:4px;word-break:break-all}
+
+  .ota p{margin:0 0 10px;color:var(--muted);font-size:14px;line-height:1.55}
+  .ota ol{margin:0 0 14px;padding-left:20px;color:var(--muted);font-size:14px;line-height:1.7}
+  .ota b{color:var(--text)}
+  .ota .actions{display:flex;gap:10px;flex-wrap:wrap}
+  .note{margin-top:12px;font-size:12px;color:var(--muted)}
+
+  dialog{border:1px solid var(--line);border-radius:20px;background:var(--bg2);color:var(--text);padding:0;
+         width:min(440px,calc(100vw - 28px))}
+  dialog::backdrop{background:#030712b3;backdrop-filter:blur(4px)}
+  .dlg{padding:20px}
+  .dlg h3{margin:0 0 14px;font-size:17px}
+  label{display:block;font-size:12px;color:var(--muted);margin:12px 0 6px}
+  input[type=text],input[type=password],input[type=number]{
+    width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#0b1426;color:var(--text);font-size:15px}
+  input:focus{outline:none;border-color:var(--accent)}
+  .dlg-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+
+  #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0));transform:translateX(-50%) translateY(30px);
+         background:#0f172a;border:1px solid var(--line);color:var(--text);padding:12px 18px;border-radius:12px;
+         font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:90vw}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  footer{margin-top:30px;text-align:center;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo">⚡</div>
+      <div style="min-width:0">
+        <h1>VIÊN PIN SMART IoT</h1>
+        <div class="sub" id="devLabel">Thiết bị: —</div>
+      </div>
+    </div>
+    <button class="icon-btn" id="btnSettings" title="Cài đặt kết nối">⚙️</button>
+  </header>
+
+  <div class="status-row">
+    <div class="chip wait" id="chipBroker"><span class="dot"></span><span>Đang kết nối máy chủ…</span></div>
+    <div class="chip" id="chipDevice"><span class="dot"></span><span>Thiết bị: chưa rõ</span></div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" id="btnAllOn">🔆 Bật tất cả</button>
+    <button class="btn" id="btnAllOff">🌙 Tắt tất cả</button>
+  </div>
+
+  <div class="grid" id="relays"></div>
+
+  <h2>Thông tin thiết bị</h2>
+  <div class="card">
+    <div class="info-grid">
+      <div class="kv"><div class="k">Địa chỉ IP</div><div class="v" id="infoIp">—</div></div>
+      <div class="kv"><div class="k">Sóng WiFi</div><div class="v" id="infoRssi">—</div></div>
+      <div class="kv"><div class="k">Phiên bản FW</div><div class="v" id="infoFw">—</div></div>
+      <div class="kv"><div class="k">Chạy được</div><div class="v" id="infoUp">—</div></div>
+    </div>
+  </div>
+
+  <h2>Cập nhật firmware (OTA)</h2>
+  <div class="card ota">
+    <p>Nạp firmware mới cho board bằng file <b>.bin</b>, không cần cắm cáp USB.</p>
+    <ol>
+      <li>Trong Arduino IDE chọn <b>Sketch → Export Compiled Binary</b> để tạo file <b>.bin</b>.</li>
+      <li>Điện thoại hoặc máy tính phải cùng mạng WiFi với board.</li>
+      <li>Bấm <b>Mở trang cập nhật</b>, đăng nhập, chọn file <b>.bin</b> rồi bấm Update.</li>
+      <li>Chờ board tự khởi động lại, không rút nguồn khi đang nạp.</li>
+    </ol>
+    <div class="actions">
+      <a class="btn primary disabled" id="btnOta" href="#" target="_blank" rel="noopener">⬆️ Mở trang cập nhật</a>
+      <button class="btn" id="btnCopyIp" disabled>📋 Sao chép IP</button>
+    </div>
+    <div class="note">Tài khoản mặc định <b>admin</b>, mật khẩu đặt trong firmware (hằng số <code>OTA_PASS</code>). Trang cập nhật là http nội bộ nên chỉ mở được khi cùng mạng LAN với board.</div>
+  </div>
+
+  <footer>VIÊN PIN SMART IoT · MQTT qua TLS</footer>
+</div>
+
+<!-- Hộp thoại sửa tên relay -->
+<dialog id="dlgRename">
+  <div class="dlg">
+    <h3>Sửa tên relay</h3>
+    <label for="inName">Tên hiển thị</label>
+    <input type="text" id="inName" maxlength="24" autocomplete="off">
+    <div class="dlg-actions">
+      <button class="btn" id="renCancel">Hủy</button>
+      <button class="btn primary" id="renSave">Lưu</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Hộp thoại cài đặt kết nối -->
+<dialog id="dlgSettings">
+  <div class="dlg">
+    <h3>Cài đặt kết nối</h3>
+    <label for="cfgDevice">Mã thiết bị (DEVICE_ID)</label>
+    <input type="text" id="cfgDevice" autocomplete="off">
+    <label for="cfgHost">Máy chủ MQTT</label>
+    <input type="text" id="cfgHost" autocomplete="off">
+    <label for="cfgPort">Cổng WebSocket TLS</label>
+    <input type="number" id="cfgPort">
+    <label for="cfgUser">Tên đăng nhập</label>
+    <input type="text" id="cfgUser" autocomplete="off">
+    <label for="cfgPass">Mật khẩu</label>
+    <input type="password" id="cfgPass" autocomplete="off">
+    <div class="dlg-actions">
+      <button class="btn" id="cfgCancel">Đóng</button>
+      <button class="btn primary" id="cfgSave">Lưu &amp; kết nối</button>
+    </div>
+  </div>
+</dialog>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  // ====== CẤU HÌNH MẶC ĐỊNH ======
+  // BROKER_PASS để trống: lần đầu mở trang sẽ hỏi mật khẩu và lưu trong trình duyệt.
+  // Nếu điền sẵn mật khẩu vào đây thì ai mở trang cũng đọc được (xem ghi chú khi bàn giao cho khách).
+  var DEFAULTS = {
+    device: 'vien_09',
+    host: 'i2176b42.ala.asia-southeast1.emqxsl.com',
+    port: 8084,
+    user: 'vienpin',
+    pass: ''
+  };
+
+  // Danh sách relay: key = tên trong JSON, cmd = tiền tố lệnh (khớp firmware)
+  var ALL_RELAYS = [
+    { key:'den',  cmd:'DEN',  name:'Đèn',     icon:'💡' },
+    { key:'quat', cmd:'QUAT', name:'Quạt',    icon:'🌀' },
+    { key:'r3',   cmd:'R3',   name:'Relay 3', icon:'🔌' },
+    { key:'r4',   cmd:'R4',   name:'Relay 4', icon:'🔌' }
+  ];
+
+  function $(s){ return document.querySelector(s); }
+  function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+
+  var params = new URLSearchParams(location.search);
+  var relayCount = params.get('relay') === '2' ? 2 : 4;
+  var RELAYS = ALL_RELAYS.slice(0, relayCount);
+
+  var saved = {};
+  try { saved = JSON.parse(lsGet('vp_cfg') || '{}'); } catch(e){ saved = {}; }
+  var cfg = {
+    device: params.get('device') || saved.device || DEFAULTS.device,
+    host:   saved.host || DEFAULTS.host,
+    port:   saved.port || DEFAULTS.port,
+    user:   saved.user || DEFAULTS.user,
+    pass:   saved.pass || DEFAULTS.pass
+  };
+
+  var names = {};
+  function loadNames(){
+    try { names = JSON.parse(lsGet('vp_names_' + cfg.device) || '{}'); } catch(e){ names = {}; }
+  }
+  function nameOf(r){ return (names[r.key] && String(names[r.key]).trim()) || r.name; }
+
+  var state = {};           // key -> true/false
+  var pending = {};         // key -> true khi đang chờ board phản hồi
+  var info = {};
+  var brokerOk = false;
+  var deviceOnline = null;  // null = chưa rõ
+  var client = null;
+
+  function topic(s){ return 'vienpin/' + cfg.device + '/' + s; }
+
+  // ====== TOAST ======
+  var toastTimer;
+  function toast(msg){
+    var t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2400);
+  }
+
+  // ====== GIAO DIỆN RELAY ======
+  function renderRelays(){
+    var box = $('#relays');
+    box.textContent = '';
+    RELAYS.forEach(function(r){
+      var on = !!state[r.key];
+
+      var card = document.createElement('div');
+      card.className = 'card relay' + (on ? ' on' : '') + (pending[r.key] ? ' pending' : '');
+      card.dataset.key = r.key;
+
+      var top = document.createElement('div'); top.className = 'r-top';
+      var ico = document.createElement('div'); ico.className = 'r-ico'; ico.textContent = r.icon;
+      var meta = document.createElement('div'); meta.className = 'r-meta';
+      var nm = document.createElement('div'); nm.className = 'r-name'; nm.textContent = nameOf(r);
+      var st = document.createElement('div'); st.className = 'r-state';
+      st.textContent = pending[r.key] ? 'Đang gửi lệnh…' : (key_known(r.key) ? (on ? 'Đang bật' : 'Đang tắt') : 'Chưa có dữ liệu');
+      meta.appendChild(nm); meta.appendChild(st);
+      top.appendChild(ico); top.appendChild(meta);
+
+      var bottom = document.createElement('div'); bottom.className = 'r-bottom';
+      var ed = document.createElement('button'); ed.className = 'edit'; ed.textContent = '✏️ Sửa tên';
+      ed.addEventListener('click', function(){ openRename(r); });
+
+      var sw = document.createElement('label'); sw.className = 'switch';
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = on;
+      var sl = document.createElement('span'); sl.className = 'slider';
+      cb.addEventListener('change', function(){ sendRelay(r, cb.checked); });
+      sw.appendChild(cb); sw.appendChild(sl);
+
+      bottom.appendChild(ed); bottom.appendChild(sw);
+      card.appendChild(top); card.appendChild(bottom);
+      box.appendChild(card);
+    });
+  }
+  function key_known(k){ return Object.prototype.hasOwnProperty.call(state, k); }
+
+  function setChips(){
+    var cb = $('#chipBroker'), cd = $('#chipDevice');
+    if (brokerOk){
+      cb.className = 'chip ok'; cb.lastChild.textContent = 'Đã kết nối máy chủ';
+    } else {
+      cb.className = 'chip wait'; cb.lastChild.textContent = 'Đang kết nối máy chủ…';
+    }
+    if (deviceOnline === true){
+      cd.className = 'chip ok'; cd.lastChild.textContent = 'Thiết bị đang online';
+    } else if (deviceOnline === false){
+      cd.className = 'chip bad'; cd.lastChild.textContent = 'Thiết bị offline';
+    } else {
+      cd.className = 'chip'; cd.lastChild.textContent = 'Thiết bị: chưa rõ';
+    }
+    $('#devLabel').textContent = 'Thiết bị: ' + cfg.device;
+  }
+
+  function fmtUp(s){
+    s = Number(s) || 0;
+    var d = Math.floor(s/86400), h = Math.floor(s%86400/3600), m = Math.floor(s%3600/60);
+    if (d) return d + ' ngày ' + h + ' giờ';
+    if (h) return h + ' giờ ' + m + ' phút';
+    return m + ' phút';
+  }
+  function renderInfo(){
+    $('#infoIp').textContent   = info.ip || '—';
+    $('#infoRssi').textContent = (info.rssi !== undefined) ? info.rssi + ' dBm' : '—';
+    $('#infoFw').textContent   = info.fw || '—';
+    $('#infoUp').textContent   = (info.up !== undefined) ? fmtUp(info.up) : '—';
+
+    var ota = $('#btnOta'), cp = $('#btnCopyIp');
+    if (info.ip){
+      ota.href = 'http://' + info.ip + '/update';
+      ota.classList.remove('disabled');
+      cp.disabled = false;
+    } else {
+      ota.href = '#';
+      ota.classList.add('disabled');
+      cp.disabled = true;
+    }
+  }
+
+  // ====== MQTT ======
+  function sendCmd(cmd){
+    if (!client || !brokerOk){ toast('Chưa kết nối máy chủ'); return false; }
+    client.publish(topic('control'), cmd, { qos:0, retain:false });
+    return true;
+  }
+  function sendRelay(r, on){
+    if (sendCmd(r.cmd + (on ? '_ON' : '_OFF'))){
+      pending[r.key] = true;
+      setTimeout(function(){ if (pending[r.key]){ delete pending[r.key]; renderRelays(); } }, 4000);
+    }
+    renderRelays();
+  }
+
+  function connect(){
+    if (client){ try { client.end(true); } catch(e){} client = null; }
+    brokerOk = false; deviceOnline = null; setChips();
+
+    if (!cfg.pass){
+      openSettings('Nhập mật khẩu MQTT để kết nối.');
+      return;
+    }
+
+    var url = 'wss://' + cfg.host + ':' + cfg.port + '/mqtt';
+    client = mqtt.connect(url, {
+      clientId: 'web_' + Math.random().toString(16).slice(2, 10),
+      username: cfg.user,
+      password: cfg.pass,
+      clean: true,
+      reconnectPeriod: 3000,
+      connectTimeout: 10000,
+      keepalive: 30
+    });
+
+    client.on('connect', function(){
+      brokerOk = true; setChips();
+      client.subscribe([topic('status'), topic('online'), topic('info'), topic('names')], { qos:0 });
+    });
+    client.on('reconnect', function(){ brokerOk = false; setChips(); });
+    client.on('close', function(){ brokerOk = false; setChips(); });
+    client.on('error', function(err){
+      brokerOk = false; setChips();
+      var m = (err && err.message) ? err.message : '';
+      if (/not authorized|bad user|Connection refused/i.test(m)) toast('Sai tên đăng nhập hoặc mật khẩu');
+    });
+
+    client.on('message', function(t, payload){
+      var msg = payload.toString();
+      if (t === topic('status')){
+        try {
+          var o = JSON.parse(msg);
+          RELAYS.forEach(function(r){
+            if (typeof o[r.key] === 'boolean'){ state[r.key] = o[r.key]; delete pending[r.key]; }
+          });
+          renderRelays();
+        } catch(e){}
+      } else if (t === topic('online')){
+        deviceOnline = (msg.trim() === 'online'); setChips();
+      } else if (t === topic('info')){
+        try { info = JSON.parse(msg); renderInfo(); } catch(e){}
+      } else if (t === topic('names')){
+        try {
+          var n = JSON.parse(msg);
+          if (n && typeof n === 'object'){
+            names = {};
+            Object.keys(n).forEach(function(k){ if (typeof n[k] === 'string') names[k] = n[k].slice(0, 24); });
+            lsSet('vp_names_' + cfg.device, JSON.stringify(names));
+            renderRelays();
+          }
+        } catch(e){}
+      }
+    });
+  }
+
+  // ====== SỬA TÊN RELAY ======
+  var renaming = null;
+  function openRename(r){
+    renaming = r;
+    $('#inName').value = nameOf(r);
+    $('#dlgRename').showModal();
+    setTimeout(function(){ $('#inName').focus(); $('#inName').select(); }, 50);
+  }
+  function saveRename(){
+    if (!renaming) return;
+    var v = $('#inName').value.trim().slice(0, 24);
+    if (v && v !== renaming.name) names[renaming.key] = v; else delete names[renaming.key];
+    lsSet('vp_names_' + cfg.device, JSON.stringify(names));
+    // Lưu lên máy chủ (retained) để mọi điện thoại/trình duyệt khác cùng thấy tên mới
+    if (client && brokerOk){
+      client.publish(topic('names'), JSON.stringify(names), { qos:0, retain:true });
+    }
+    $('#dlgRename').close();
+    renaming = null;
+    renderRelays();
+    toast('Đã lưu tên relay');
+  }
+
+  // ====== CÀI ĐẶT KẾT NỐI ======
+  function openSettings(hint){
+    $('#cfgDevice').value = cfg.device;
+    $('#cfgHost').value = cfg.host;
+    $('#cfgPort').value = cfg.port;
+    $('#cfgUser').value = cfg.user;
+    $('#cfgPass').value = cfg.pass;
+    if (!$('#dlgSettings').open) $('#dlgSettings').showModal();
+    if (hint) toast(hint);
+  }
+  function saveSettings(){
+    cfg.device = $('#cfgDevice').value.trim() || DEFAULTS.device;
+    cfg.host   = $('#cfgHost').value.trim()   || DEFAULTS.host;
+    cfg.port   = parseInt($('#cfgPort').value, 10) || DEFAULTS.port;
+    cfg.user   = $('#cfgUser').value.trim()   || DEFAULTS.user;
+    cfg.pass   = $('#cfgPass').value;
+    lsSet('vp_cfg', JSON.stringify({ device:cfg.device, host:cfg.host, port:cfg.port, user:cfg.user, pass:cfg.pass }));
+    $('#dlgSettings').close();
+    state = {}; pending = {}; info = {};
+    loadNames(); renderRelays(); renderInfo();
+    connect();
+  }
+
+  // ====== SỰ KIỆN ======
+  $('#btnSettings').addEventListener('click', function(){ openSettings(); });
+  $('#cfgCancel').addEventListener('click', function(){ $('#dlgSettings').close(); });
+  $('#cfgSave').addEventListener('click', saveSettings);
+  $('#renCancel').addEventListener('click', function(){ $('#dlgRename').close(); });
+  $('#renSave').addEventListener('click', saveRename);
+  $('#inName').addEventListener('keydown', function(e){ if (e.key === 'Enter') saveRename(); });
+  $('#btnAllOn').addEventListener('click', function(){ sendCmd('ALL_ON'); });
+  $('#btnAllOff').addEventListener('click', function(){ sendCmd('ALL_OFF'); });
+  $('#btnOta').addEventListener('click', function(e){ if (this.classList.contains('disabled')) e.preventDefault(); });
+  $('#btnCopyIp').addEventListener('click', function(){
+    if (!info.ip) return;
+    if (navigator.clipboard) navigator.clipboard.writeText(info.ip).then(function(){ toast('Đã sao chép ' + info.ip); });
+    else toast('IP: ' + info.ip);
+  });
+
+  // ====== KHỞI ĐỘNG ======
+  loadNames();
+  renderRelays();
+  renderInfo();
+  setChips();
+  connect();
+})();
+</script>
+</body>
+</html>
