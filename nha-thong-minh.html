@@ -62,7 +62,7 @@ devices:[
  channels:[{label:"Đèn",key:"den",on:"DEN_ON",off:"DEN_OFF"},{label:"Quạt",key:"quat",on:"QUAT_ON",off:"QUAT_OFF"}]},
 {id:"ats",name:"BO 1 – ATS nlmt/lưới",group:"solar",type:"switch",broker:"pub",control:"sauvien/device3/control",status:"sauvien/device3/status",
  channels:[{label:"Năng lượng mặt trời",key:"nlmt",on:"nlmt:1",off:"nlmt:0"},{label:"Điện lưới quốc gia",key:"luoi",on:"luoi:1",off:"luoi:0"}]},
-{id:"jk",name:"BMS JK (16 cell)",group:"solar",type:"sensor",broker:"main",status:"vienpin/882080/state",
+{id:"jk",name:"BMS JK (16 cell)",group:"solar",type:"sensor",broker:"main",status:"vienpin/882050/state",
  fields:[{label:"Dung lượng",key:"L.soc",unit:"%"},{label:"Điện áp pack",key:"L.v",unit:"V"},{label:"Dòng",key:"L.a",unit:"A"},{label:"Công suất",key:"L.w",unit:"W"},{label:"Chênh áp cell",key:"L.dv",unit:"mV"},{label:"Dung lượng còn",key:"L.ah",unit:"Ah"},{label:"Số chu kỳ",key:"L.cy"}]},
 {id:"zjbe",name:"Bộ sạc NLMT ZJBE",group:"solar",type:"sensor",broker:"pub",status:"vienpin/zjbe_solar/status",
  fields:[{label:"Điện áp pin",key:"v",unit:"V"},{label:"Dòng sạc",key:"ic",unit:"A"},{label:"Công suất sạc",mul:["v","ic"],unit:"W"},{label:"Nhiệt độ",key:"t",unit:"°C"},{label:"Dòng tải",key:"il",unit:"A"}]}
