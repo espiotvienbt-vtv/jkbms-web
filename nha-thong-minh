@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nhà Thông Minh</title>
+<link rel="manifest" href="manifest.json"><link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0f172a"><meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--tx:#0f172a;--mu:#64748b;--ac:#16a34a;--off:#cbd5e1;--bd:#e2e8f0;--bad:#dc2626}
+@media(prefers-color-scheme:dark){:root{--bg:#0f172a;--card:#1e293b;--tx:#f1f5f9;--mu:#94a3b8;--ac:#22c55e;--off:#475569;--bd:#334155}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px}
+h1{font-size:20px;margin:0}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--bad);margin-right:6px}.dot.ok{background:var(--ac)}
+.tabs{display:flex;gap:8px;padding:0 16px 8px;overflow-x:auto}
+.tabs button{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 14px;border-radius:20px;font-size:14px}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+main{display:grid;gap:12px;padding:8px 16px 24px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px}
+.card h2{font-size:16px;margin:0 0 2px}.sub{font-size:12px;color:var(--mu);margin-bottom:10px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--bd)}
+.sw{width:52px;height:30px;border-radius:15px;background:var(--off);border:0;position:relative;transition:.2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on{background:var(--ac)}.sw.on::after{left:25px}
+.val{font-size:20px;font-weight:600}.u{font-size:12px;color:var(--mu);margin-left:2px}
+dialog{border:0;border-radius:16px;background:var(--card);color:var(--tx);width:min(560px,94vw)}
+textarea{width:100%;height:50vh;font:12px monospace;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-size:14px}.btn.g{background:var(--off)}
+input,select{width:100%;padding:9px;margin:4px 0 8px;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;font-size:14px}label{font-size:12px;color:var(--mu)}.del{float:right;background:none;border:0;font-size:15px}#adlg textarea{height:90px}.gear{background:none;border:0;font-size:22px;color:var(--tx)}
+</style></head><body>
+<header><h1>🏠 Nhà Thông Minh</h1><div><span id="st"><span class="dot"></span>mất kết nối</span> <button class="gear" onclick="openAdd()">➕</button> <button class="gear" onclick="openCfg()">⚙️</button></div></header>
+<div class="tabs" id="tabs"></div><main id="main"></main>
+<dialog id="dlg"><h2>Cài đặt (JSON)</h2>
+<p class="sub">brokers: máy chủ MQTT (điền pass vào đây). devices: thêm/sửa thiết bị.</p>
+<textarea id="cfg" spellcheck="false"></textarea><p><button class="btn" onclick="saveCfg()">Lưu</button> <button class="btn g" onclick="resetCfg()">Mặc định</button> <button class="btn g" onclick="dlg.close()">Đóng</button></p></dialog>
+<dialog id="adlg"><h2>➕ Thêm thiết bị</h2>
+<label>Loại thiết bị</label><select id="a_type" onchange="typeChg()"><option value="vp">Bo relay VIENPIN (đèn/quạt/relay)</option><option value="sw">Công tắc tùy chỉnh</option><option value="se">Cảm biến / đồng hồ đo</option></select>
+<label>Tên hiển thị</label><input id="a_name" placeholder="Ví dụ: Bơm nước vườn">
+<label>Nhóm</label><select id="a_group"></select><input id="a_newg" placeholder="…hoặc gõ tên nhóm mới (tùy chọn)">
+<label>Máy chủ MQTT</label><select id="a_broker"></select>
+<div id="f_vp"><label>Mã thiết bị (DEVICE_ID)</label><input id="a_dev" placeholder="vien_010"><label>Số relay (1–4)</label><input id="a_n" type="number" min="1" max="4" value="2"></div>
+<div id="f_sw" hidden><label>Topic gửi lệnh</label><input id="a_ctl"><label>Topic nhận trạng thái</label><input id="a_st1">
+<label>Các công tắc, mỗi dòng: Nhãn|khóa JSON|lệnh bật|lệnh tắt</label><textarea id="a_ch" placeholder="Bơm|bom|BOM_ON|BOM_OFF"></textarea></div>
+<div id="f_se" hidden><label>Topic nhận số liệu</label><input id="a_st2">
+<label>Các số liệu, mỗi dòng: Nhãn|khóa JSON|đơn vị (khóa lồng nhau dùng dấu chấm, vd L.soc)</label><textarea id="a_fl" placeholder="Nhiệt độ|temp|°C"></textarea></div>
+<p><button class="btn" onclick="addDev()">Thêm</button> <button class="btn g" onclick="adlg.close()">Đóng</button></p></dialog>
+<script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.4/dist/mqtt.min.js"></script>
+<script>
+const DEF={brokers:{
+ main:{url:"wss://i2176b42.ala.asia-southeast1.emqxsl.com:8084/mqtt",user:"vienpin",pass:""},
+ pub:{url:"wss://broker.emqx.io:8084/mqtt"}},
+groups:{all:"Tất cả",solar:"Điện / Solar",relay:"Đèn · Quạt · Relay"},
+devices:[
+{id:"r4",name:"4 relay (vien_009)",group:"relay",type:"switch",broker:"main",control:"vienpin/vien_009/control",status:"vienpin/vien_009/status",online:"vienpin/vien_009/online",
+ channels:[{label:"Đèn",key:"den",on:"DEN_ON",off:"DEN_OFF"},{label:"Quạt",key:"quat",on:"QUAT_ON",off:"QUAT_OFF"},{label:"Relay 3",key:"r3",on:"R3_ON",off:"R3_OFF"},{label:"Relay 4",key:"r4",on:"R4_ON",off:"R4_OFF"}]},
+{id:"c3",name:"Đèn & quạt (2 relay C3)",group:"relay",type:"switch",broker:"main",control:"vienpin/DEVICE_ID/control",status:"vienpin/DEVICE_ID/status",online:"vienpin/DEVICE_ID/online",
+ channels:[{label:"Đèn",key:"den",on:"DEN_ON",off:"DEN_OFF"},{label:"Quạt",key:"quat",on:"QUAT_ON",off:"QUAT_OFF"}]},
+{id:"ats",name:"BO 1 – ATS nlmt/lưới",group:"solar",type:"switch",broker:"pub",control:"sauvien/device3/control",status:"sauvien/device3/status",
+ channels:[{label:"Năng lượng mặt trời",key:"nlmt",on:"nlmt:1",off:"nlmt:0"},{label:"Điện lưới quốc gia",key:"luoi",on:"luoi:1",off:"luoi:0"}]},
+{id:"jk",name:"BMS JK (16 cell)",group:"solar",type:"sensor",broker:"main",status:"vienpin/882050/state",
+ fields:[{label:"Dung lượng",key:"L.soc",unit:"%"},{label:"Điện áp pack",key:"L.v",unit:"V"},{label:"Dòng",key:"L.a",unit:"A"},{label:"Công suất",key:"L.w",unit:"W"},{label:"Chênh áp cell",key:"L.dv",unit:"mV"},{label:"Dung lượng còn",key:"L.ah",unit:"Ah"},{label:"Số chu kỳ",key:"L.cy"}]},
+{id:"zjbe",name:"Bộ sạc NLMT ZJBE",group:"solar",type:"sensor",broker:"pub",status:"vienpin/zjbe_solar/status",
+ fields:[{label:"Điện áp pin",key:"v",unit:"V"},{label:"Dòng sạc",key:"ic",unit:"A"},{label:"Công suất sạc",mul:["v","ic"],unit:"W"},{label:"Nhiệt độ",key:"t",unit:"°C"},{label:"Dòng tải",key:"il",unit:"A"}]}
+]};
+const $=id=>document.getElementById(id);
+const adlg=document.getElementById("adlg");let cfg,state={},onl={},clients={},tab="all",dlg=$("dlg");
+function load(){try{cfg=JSON.parse(localStorage.getItem("sh_cfg"))||structuredClone(DEF)}catch(e){cfg=structuredClone(DEF)}}
+function isOn(v){return v===true||v===1||/^(1|on|true)$/i.test(String(v))}
+function get(o,p){return p.split(".").reduce((a,k)=>a==null?a:a[k],o)}
+function connect(){
+ Object.values(clients).forEach(c=>c.end(true));clients={};
+ for(const [n,b] of Object.entries(cfg.brokers)){
+  if(!cfg.devices.some(d=>(d.broker||"main")===n))continue;
+  const c=mqtt.connect(b.url,{username:b.user,password:b.pass,clientId:"sh_"+Math.random().toString(16).slice(2,10),reconnectPeriod:3000});
+  clients[n]=c;
+  c.on("connect",()=>{cfg.devices.filter(d=>(d.broker||"main")===n&&d.status).forEach(d=>c.subscribe([d.status,d.online].filter(Boolean)));stat()});
+  c.on("close",stat);c.on("error",stat);
+  c.on("message",(t,m)=>{cfg.devices.filter(d=>(d.broker||"main")===n&&d.online===t).forEach(d=>{onl[d.id]=m.toString().trim()==="online";render()});cfg.devices.filter(d=>(d.broker||"main")===n&&d.status===t).forEach(d=>{
+   let p;try{p=JSON.parse(m.toString())}catch(e){p={value:m.toString()}}state[d.id]=p;render()})});
+ }}
+function stat(){const ok=Object.values(clients).length&&Object.values(clients).every(c=>c.connected);
+ $("st").innerHTML=`<span class="dot ${ok?"ok":""}"></span>${ok?"đã kết nối":"mất kết nối"}`}
+function send(d,cmd){const c=clients[d.broker||"main"];if(c&&c.connected)c.publish(d.control,cmd);else alert("Chưa kết nối MQTT")}
+function toggle(i,j){const d=cfg.devices[i],ch=d.channels[j],on=isOn((state[d.id]||{})[ch.key]);send(d,on?ch.off:ch.on)}
+function render(){
+ $("tabs").innerHTML=Object.entries(cfg.groups).map(([k,v])=>`<button class="${k===tab?"on":""}" onclick="tab='${k}';render()">${v}</button>`).join("");
+ $("main").innerHTML=cfg.devices.map((d,i)=>{
+  if(tab!=="all"&&d.group!==tab)return"";
+  const s=state[d.id],body=d.type==="switch"
+   ?d.channels.map((ch,j)=>`<div class="row"><span>${ch.label}</span><button class="sw ${s&&isOn(s[ch.key])?"on":""}" onclick="toggle(${i},${j})"></button></div>`).join("")
+   :d.fields.map(f=>{let v=s?(f.mul?f.mul.map(k=>get(s,k)).reduce((x,y)=>x*y):get(s,f.key)):undefined;if(typeof v==="number")v=Math.round(v*100)/100;return`<div class="row"><span>${f.label}</span><span class="val">${v==null?"--":v}<span class="u">${f.unit||""}</span></span></div>`}).join("");
+  return`<div class="card"><h2>${d.name}<button class="del" onclick="delDev(${i})">🗑</button></h2><div class="sub">${onl[d.id]===false?"⚠️ thiết bị offline":onl[d.id]?"đang online":s?"đã nhận dữ liệu":"chưa có dữ liệu"}</div>${body}</div>`}).join("")}
+function persist(){localStorage.setItem("sh_cfg",JSON.stringify(cfg))}
+function openAdd(){
+ $("a_group").innerHTML=Object.entries(cfg.groups).filter(([k])=>k!=="all").map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
+ $("a_broker").innerHTML=Object.keys(cfg.brokers).map(k=>`<option>${k}</option>`).join("");typeChg();adlg.showModal()}
+function typeChg(){const t=$("a_type").value;$("f_vp").hidden=t!=="vp";$("f_sw").hidden=t!=="sw";$("f_se").hidden=t!=="se"}
+const lines=v=>v.split("\n").map(l=>l.split("|").map(x=>x.trim())).filter(a=>a[0]&&a[1]);
+function addDev(){
+ const t=$("a_type").value,name=$("a_name").value.trim();if(!name)return alert("Nhập tên thiết bị");
+ let group=$("a_group").value,ng=$("a_newg").value.trim();if(ng){group="g"+Date.now().toString(36);cfg.groups[group]=ng}
+ let d={id:"d"+Date.now().toString(36),name,group,broker:$("a_broker").value};
+ if(t==="vp"){const dev=$("a_dev").value.trim();if(!dev)return alert("Nhập mã thiết bị");
+  const all=[["Đèn","den","DEN"],["Quạt","quat","QUAT"],["Relay 3","r3","R3"],["Relay 4","r4","R4"]].slice(0,Math.min(4,Math.max(1,+$("a_n").value||2)));
+  Object.assign(d,{type:"switch",control:`vienpin/${dev}/control`,status:`vienpin/${dev}/status`,online:`vienpin/${dev}/online`,channels:all.map(([label,key,c])=>({label,key,on:c+"_ON",off:c+"_OFF"}))})}
+ else if(t==="sw"){const ch=lines($("a_ch").value);if(!$("a_ctl").value.trim()||!ch.length)return alert("Cần topic gửi lệnh và ít nhất 1 công tắc");
+  Object.assign(d,{type:"switch",control:$("a_ctl").value.trim(),status:$("a_st1").value.trim(),channels:ch.map(a=>({label:a[0],key:a[1],on:a[2]||"1",off:a[3]||"0"}))})}
+ else{const f=lines($("a_fl").value);if(!$("a_st2").value.trim()||!f.length)return alert("Cần topic số liệu và ít nhất 1 dòng số liệu");
+  Object.assign(d,{type:"sensor",status:$("a_st2").value.trim(),fields:f.map(a=>({label:a[0],key:a[1],unit:a[2]||""}))})}
+ cfg.devices.push(d);persist();adlg.close();connect();render()}
+function delDev(i){if(!confirm("Xóa thiết bị \""+cfg.devices[i].name+"\"?"))return;cfg.devices.splice(i,1);persist();connect();render()}
+function openCfg(){$("cfg").value=JSON.stringify(cfg,null,1);dlg.showModal()}
+function saveCfg(){try{cfg=JSON.parse($("cfg").value)}catch(e){return alert("JSON sai: "+e.message)}
+ localStorage.setItem("sh_cfg",JSON.stringify(cfg));dlg.close();state={};onl={};connect();render()}
+function resetCfg(){if(confirm("Đưa về mặc định?")){localStorage.removeItem("sh_cfg");load();$("cfg").value=JSON.stringify(cfg,null,1);state={};connect();render()}}
+load();render();connect();
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script></body></html>
