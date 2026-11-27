@@ -128,6 +128,18 @@ nav{background:#17191b;border-top:1px solid #26292c}
 .er input{width:96px;padding:8px;font-size:15.5px;text-align:right;background:#0e0f10;border:1px solid #3a3d40;border-radius:8px;color:#fff;font-family:inherit}
 .er.dirty input{border-color:#ffb020;background:#2b2410}
 .er em{font-style:normal;color:var(--mut);font-size:12px;min-width:20px}
+
+details.acc{background:#17191b;border:1px solid #2a2d30;border-radius:14px;margin-bottom:10px;overflow:hidden}
+details.acc>summary{list-style:none;cursor:pointer;padding:15px 16px;font-size:17px;font-weight:700;color:#7ec8ff;display:flex;justify-content:space-between;align-items:center}
+details.acc>summary::-webkit-details-marker{display:none}
+details.acc>summary:after{content:'›';font-size:24px;color:#9aa0a6;transition:.2s}
+details.acc[open]>summary:after{transform:rotate(90deg)}
+.accb{padding:0 14px 12px}
+.ro{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-top:1px solid #2a2d30;font-size:15px}
+.ro b{color:var(--ok);font-weight:500;white-space:nowrap}
+.er input{width:86px}
+.okb{background:#2fbf3f;color:#04210a;border:0;border-radius:8px;padding:9px 11px;font-weight:800;font-size:13px;margin-left:4px;cursor:pointer}
+.okb:disabled{opacity:.4}
 </style>
 </head>
 <body>
@@ -208,36 +220,50 @@ nav{background:#17191b;border-top:1px solid #26292c}
 
 <!-- CÀI ĐẶT -->
 <section class="tab" id="t-set">
- <h3>Điều khiển</h3>
- <div class="card" style="padding:4px 14px">
+ <div class="card" id="settop">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b style="font-size:18px">Cài đặt BMS</b><span id="setstamp" class="note" style="margin:0"></span></div>
+  <div class="note" id="setnote" style="margin-top:6px">Đang đọc từ BMS…</div>
+  <div class="ctl" id="unlockrow" style="display:none;padding:8px 0"><span>Mở khóa sửa thông số</span><button class="tg" id="tg-unlock"></button></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="btn sm" id="b-readset">⟳ Đọc từ BMS</button><button class="btn sm" id="b-export">Xuất tham số</button><button class="btn sm" id="b-import">Nhập tham số</button></div>
+  <input type="file" id="f-import" accept=".json,application/json" style="display:none">
+  <div id="savemsg" class="note" style="margin-top:8px"></div>
+  <button class="btn w" id="b-save" style="display:none;background:#e08a00;color:#1b1100;font-weight:700">LƯU CÁC THAY ĐỔI XUỐNG BMS</button>
+  <p class="note">Sửa 1 ô rồi bấm <b>OK</b> cuối dòng để ghi luôn (có hộp xác nhận). Tự khóa lại sau 5 phút.</p>
+ </div>
+ <details class="acc" open><summary>Cài đặt cơ bản</summary><div class="accb" id="g-basic"></div></details>
+ <details class="acc"><summary>Cài đặt nâng cao</summary><div class="accb" id="g-adv"></div></details>
+ <details class="acc"><summary>Cài đặt thêm (thợ lắp đặt)</summary><div class="accb"><div id="g-extra"></div>
+ <div id="calwrap" style="display:none">
+ <h3 style="margin:14px 0 8px;font-size:16px">Hiệu chuẩn (chỉ dành cho thợ)</h3>
+ <div class="card">
+  <div style="background:#2d1311;border:1px solid #7a2a24;border-radius:10px;padding:10px;font-size:13.5px;line-height:1.5;margin-bottom:8px"><b>CẢNH BÁO:</b> hiệu chuẩn sai làm BMS đo sai điện áp/dòng của cả pack, ảnh hưởng SOC và các bảo vệ. Chỉ thực hiện khi có đồng hồ/ampe kìm chính xác. Cần <b>Mở khóa sửa thông số</b> ở mục trên.</div>
+  <div class="er"><span>Điện áp pack thực đo<small id="calvlive">BMS đang đo: -- V</small></span><span class="in"><input id="cal-v" type="number" inputmode="decimal" step="0.001"><em>V</em></span></div>
+  <button class="btn w" id="b-cal-v" style="color:#ffb020">HIỆU CHUẨN ĐIỆN ÁP</button>
+  <div class="er" style="margin-top:10px"><span>Dòng thực đo<small id="calilive">BMS đang đo: -- A</small></span><span class="in"><input id="cal-i" type="number" inputmode="decimal" step="0.001"><em>A</em></span></div>
+  <button class="btn w" id="b-cal-i" style="color:#ffb020">HIỆU CHUẨN DÒNG</button>
+  <div id="calmsg" class="note" style="margin-top:8px"></div>
+  <p class="note">Điện áp: chỉ nhận giá trị lệch tối đa 3% so với số BMS đang đo. Dòng: nhập 0 khi không có tải để chỉnh điểm không; chỉ nhận chênh tối đa 10% (hoặc 1 A) so với số BMS đang đo.</p>
+ </div>
+ </div>
+ </div></details>
+ <details class="acc" open><summary>Điều khiển</summary><div class="accb">
   <div class="ctl"><span>MOS sạc</span><button class="tg" id="tg-chg"></button></div>
   <div class="ctl"><span>MOS xả</span><button class="tg" id="tg-dis"></button></div>
   <div class="ctl"><span>Cân bằng</span><button class="tg" id="tg-bal"></button></div>
- </div>
- <h3 style="margin-top:20px">Thông số BMS</h3>
- <div class="card">
-  <div class="note" id="setnote">Đang đọc từ BMS…</div>
-  <div class="ctl" id="unlockrow" style="display:none;padding:6px 0"><span>Mở khóa sửa thông số</span><button class="tg" id="tg-unlock"></button></div>
-  <div class="kv" id="setlist" style="grid-template-columns:1fr"></div>
-  <div id="savemsg" class="note" style="margin-top:8px"></div>
-  <button class="btn w" id="b-save" style="display:none;background:#e08a00;color:#1b1100;font-weight:700">LƯU CÁC THAY ĐỔI XUỐNG BMS</button>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn sm" id="b-readset">Đọc lại từ BMS</button><button class="btn sm" id="b-export">Xuất tham số</button><button class="btn sm" id="b-import">Nhập tham số</button></div>
-  <input type="file" id="f-import" accept=".json,application/json" style="display:none">
-  <p class="note">Công tắc sạc/xả/cân bằng nằm ở mục Điều khiển phía trên. Tự khóa lại sau 5 phút.</p>
- </div>
- <h3 style="margin-top:20px">Dò và kết nối BMS</h3>
- <div class="card">
+ </div></details>
+ <details class="acc"><summary>Dò và kết nối BMS</summary><div class="accb">
   <div id="smsg" style="font-size:16px"></div>
   <div class="note" style="margin:6px 0 10px">BMS đã lưu: <span id="saved">--</span></div>
   <button class="btn sm" id="b-scan">Dò BMS</button> <button class="btn sm red" id="b-forget">Quên BMS</button>
   <div id="cands"></div>
   <div id="conf" style="display:none;margin-top:12px"><b>Đúng BMS của bạn chưa?</b><div class="note">So số liệu với app JK.</div>
    <button class="btn sm" id="b-ok" style="background:var(--ok);color:#000">Xác nhận lưu</button> <button class="btn sm" id="b-cancel">Hủy</button></div>
- </div>
-  <h3 style="margin-top:20px">Thông tin thiết bị</h3>
- <div class="kv card" id="dev"></div>
- <button class="btn w" id="b-ota">Cập nhật firmware</button>
- <button class="btn w red" id="b-rst">Khởi động lại thiết bị</button>
+ </div></details>
+ <details class="acc"><summary>Thông tin thiết bị</summary><div class="accb">
+  <div class="kv" id="dev"></div>
+  <button class="btn w" id="b-ota">Cập nhật firmware</button>
+  <button class="btn w red" id="b-rst">Khởi động lại thiết bị</button>
+ </div></details>
 </section>
 </main>
 <nav>
@@ -254,7 +280,7 @@ const f=(v,d)=>(v==null||isNaN(v))?'--':Number(v).toFixed(d);
 const BROKER='wss://i2176b42.ala.asia-southeast1.emqxsl.com:8084/mqtt';   // broker riêng EMQX Cloud (WebSocket TLS)
 const MQTT_USER='vienpin';   // <-- tài khoản DÙNG CHUNG tạo trên EMQX (giống trong firmware)
 const MQTT_PASS='V76a07481@';        // <-- mật khẩu của tài khoản đó
-let ID=null,cli=null,S=null,SET=null,UNLOCK=false,EDIT={},UTM=null,SAVING=false,online=false,lastRx=0,H24=[],H7=[],K=null,hmode='24',kmode='d';
+let ID=null,cli=null,S=null,SET=null,UNLOCK=false,EDIT={},UTM=null,SAVING=false,SETTIME='',online=false,lastRx=0,H24=[],H7=[],K=null,hmode='24',kmode='d';
 try{ID=localStorage.getItem('vp_id')}catch(e){}
 /* Quét QR có gắn #ID (vd .../jkbms-web/#030375): tự nhận ID, lưu lại và xoá phần # khỏi địa chỉ */
 try{const m=location.hash.match(/^#(?:vtv[_-]?)?([0-9a-f]{6})$/i);
@@ -297,7 +323,7 @@ function connect(){
       else if(k==='hist'){H24=parseHist(s);drawCharts();}
       else if(k==='hist7'){H7=parseHist(s);drawCharts();}
       else if(k==='kwh'){K=JSON.parse(s);drawCharts();}
-      else if(k==='set'){SET=JSON.parse(s).v;renderSet();render();}
+      else if(k==='set'){SET=JSON.parse(s).v;SETTIME=new Date().toTimeString().slice(0,5);renderSet();render();}
     }catch(e){console.warn('bad msg',k,e)}
   });
 }
@@ -420,38 +446,59 @@ const PN=[['U ngủ thông minh','V',3],['Bảo vệ thấp áp cell','V',3],['P
  ['Dòng sạc liên tục','A',1],['Trễ quá dòng sạc','s',0],['Gỡ quá dòng sạc','s',0],['Dòng xả liên tục','A',1],['Trễ quá dòng xả','s',0],['Gỡ quá dòng xả','s',0],
  ['Thời gian gỡ ngắn mạch','s',0],['Dòng cân bằng tối đa','A',2],['OTP sạc','°C',1],['Khôi phục quá nhiệt sạc','°C',1],['Bảo vệ quá nhiệt khi xả','°C',1],['Khôi phục quá nhiệt xả','°C',1],
  ['Bảo vệ sạc nhiệt độ thấp','°C',1],['Phục hồi UTPR sạc','°C',1],['Quá nhiệt MOS','°C',1],['Phục hồi quá nhiệt MOS','°C',1],['Số lượng cell','',0],['Công tắc sạc','sw',0],['Công tắc xả','sw',0],['Công tắc cân bằng','sw',0],['Dung lượng','Ah',1],
- ['Trễ ngắn mạch (chỉ xem)','µs',0],['Điện áp bắt đầu cân bằng','V',3],['Bảo vệ nhiệt độ thấp khi xả (chỉ xem)','°C',0],['Phục hồi xả nhiệt độ thấp (chỉ xem)','°C',0]];
-const PMIN=[1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,0,-40,-40,-40,-40,-40,-40,-40,-40,1,0,0,0,1,0,1,0,0];
-const PMAX=[4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,300,3600,3600,400,3600,3600,3600,10,125,125,125,125,125,125,125,125,32,0,0,0,1000,0,4.5,0,0];
+ ['Trễ ngắn mạch (chỉ xem)','µs',0],['Điện áp bắt đầu cân bằng','V',3],['Bảo vệ nhiệt độ thấp khi xả','°C',0],['Phục hồi xả nhiệt độ thấp','°C',0],
+ ['Địa chỉ TB (chỉ xem)','',0],['Chế độ ngủ thông minh','sw2',0],['Tắt nhiệt độ pin (tắt cảm biến)','sw2',0],['Dữ liệu lưu theo hẹn giờ','sw2',0]];
+const REG2={37:45,38:40,39:47};   // thanh ghi (thập phân) của 3 công tắc phụ: 0x2D, 0x28, 0x2F
+const PMIN=[1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,0,-40,-40,-40,-40,-40,-40,-40,-40,1,0,0,0,1,0,1,-40,-40,0,0,0,0];
+const PMAX=[4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,300,3600,3600,400,3600,3600,3600,10,125,125,125,125,125,125,125,125,32,0,0,0,1000,0,4.5,40,40,0,0,0,0];
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const editable=i=>i<=27||i===31||i===33;
+const editable=i=>i<=27||i===31||i===33||i===34||i===35;
 function dirtyList(){return Object.keys(EDIT).map(Number).filter(i=>{const v=parseFloat(EDIT[i]);return !isNaN(v)&&SET&&Math.abs(v-SET[i])>=Math.pow(10,-PN[i][2])/2;});}
 function updSave(){const n=dirtyList().length,b=$('b-save');if(!b)return;b.style.display=(UNLOCK&&n)?'block':'none';b.textContent='LƯU '+n+' THAY ĐỔI XUỐNG BMS';b.disabled=SAVING;}
-function lock(v){UNLOCK=v;clearTimeout(UTM);if(v)UTM=setTimeout(()=>{UNLOCK=false;EDIT={};renderSet();},300000);else EDIT={};renderSet();}
+function lock(v){UNLOCK=v;updCal();clearTimeout(UTM);if(v)UTM=setTimeout(()=>{UNLOCK=false;EDIT={};renderSet();},300000);else EDIT={};renderSet();}
+const GROUPS={'g-basic':[27,31,3,4,1,2,10,11,14,5,33,18],'g-adv':[0,6,7,8,9,12,13,15,16,17,19,20,21,22,23,24,25,26,34,35],'g-extra':[32,36,37,38,39]};
+function rowHtml(i,ed){
+  const [n,u,d]=PN[i],v=SET[i];
+  if(v==null||isNaN(v))return '';
+  if(u==='sw2'){
+    if(ed)return `<div class="ctl" style="padding:9px 0;font-size:15px;border-top:1px solid #2a2d30"><span>${n}</span><button class="tg${v?' on':''}" data-sw2="${i}"></button></div>`;
+    return `<div class="ro"><span>${n}</span><b>${v?'Bật':'Tắt'}</b></div>`;
+  }
+  if(ed&&editable(i)){
+    const cur=EDIT[i]!==undefined?EDIT[i]:Number(v).toFixed(d);
+    const dirty=EDIT[i]!==undefined&&Math.abs(parseFloat(EDIT[i])-v)>=Math.pow(10,-d)/2;
+    return `<div class="er${dirty?' dirty':''}"><span>${n}<small>${PMIN[i]} đến ${PMAX[i]} ${u}</small></span><span class="in"><input type="number" inputmode="decimal" step="${Math.pow(10,-d)}" data-i="${i}" value="${cur}"><em>${u}</em><button class="okb" data-ok="${i}">OK</button></span></div>`;
+  }
+  const t=u==='sw'?(v?'Bật':'Tắt'):Number(v).toFixed(d)+(u?' '+u:'');
+  return `<div class="ro"><span>${n}</span><b>${t}</b></div>`;
+}
 function renderSet(){
-  const nt=$('setnote'),ls=$('setlist');if(!nt)return;
-  if(!SET||SET.length<32){nt.textContent='Đang đọc từ BMS… (cần BMS đã kết nối)';ls.innerHTML='';$('unlockrow').style.display='none';updSave();return;}
+  const nt=$('setnote');if(!nt)return;
+  updCal();
+  if(!SET||SET.length<32){nt.textContent='Đang đọc từ BMS… (cần BMS đã kết nối)';Object.keys(GROUPS).forEach(g=>$(g).innerHTML='');$('unlockrow').style.display='none';$('setstamp').textContent='';updSave();return;}
   const can=!!(S&&S.pw===1);
   nt.textContent=can?'':'Thiết bị này chưa bật sửa thông số từ xa (chỉ xem).';
   $('unlockrow').style.display=can?'flex':'none';
   $('tg-unlock').classList.toggle('on',can&&UNLOCK);
-  const ed=can&&UNLOCK;
-  if(ed&&document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#setlist'))return; // đang gõ thì không vẽ lại
-  ls.innerHTML=PN.map(([n,u,d],i)=>{
-    const v=SET[i];
-    if(v==null||isNaN(v))return '';
-    if(ed&&editable(i)){
-      const cur=EDIT[i]!==undefined?EDIT[i]:Number(v).toFixed(d);
-      const dirty=EDIT[i]!==undefined&&Math.abs(parseFloat(EDIT[i])-v)>=Math.pow(10,-d)/2;
-      return `<div class="er${dirty?' dirty':''}"><span>${n}<small>${PMIN[i]} đến ${PMAX[i]} ${u}</small></span><span class="in"><input type="number" inputmode="decimal" step="${Math.pow(10,-d)}" data-i="${i}" value="${cur}"><em>${u}</em></span></div>`;
-    }
-    const t=u==='sw'?(v?'Bật':'Tắt'):Number(v).toFixed(d)+(u?' '+u:'');
-    return `<div><span>${n}</span><b>${t}</b></div>`;
-  }).join('');
-  ls.querySelectorAll('input[data-i]').forEach(inp=>inp.oninput=()=>{
+  $('setstamp').textContent='Đã đọc '+SET.length+' thông số'+(SETTIME?' lúc '+SETTIME:'');
+  const ed=can&&UNLOCK,ae=document.activeElement;
+  if(ed&&ae&&ae.tagName==='INPUT'&&ae.closest('#t-set'))return;   // đang gõ thì không vẽ lại
+  Object.entries(GROUPS).forEach(([g,list])=>{$(g).innerHTML=list.map(i=>rowHtml(i,ed)).join('');});
+  const root=$('t-set');
+  root.querySelectorAll('[data-sw2]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.sw2,nv=SET[i]?0:1;
+    let msg=(nv?'BẬT':'TẮT')+' "'+PN[i][0]+'"?';
+    if(i===38&&nv)msg+='\n\nCẢNH BÁO: tắt cảm biến nhiệt độ pin sẽ MẤT bảo vệ nhiệt độ pin. Chỉ dùng khi cảm biến hỏng hoặc không lắp.';
+    if(confirm(msg+'\n\nSai thiết lập có thể ảnh hưởng an toàn pin.'))send('ctl:'+REG2[i]+':'+nv);
+  });
+  root.querySelectorAll('input[data-i]').forEach(inp=>inp.oninput=()=>{
     const i=+inp.dataset.i;EDIT[i]=inp.value;
-    const dirty=Math.abs(parseFloat(inp.value)-SET[i])>=Math.pow(10,-PN[i][2])/2;
-    inp.closest('.er').classList.toggle('dirty',dirty);updSave();});
+    inp.closest('.er').classList.toggle('dirty',Math.abs(parseFloat(inp.value)-SET[i])>=Math.pow(10,-PN[i][2])/2);updSave();});
+  root.querySelectorAll('[data-ok]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.ok,inp=b.closest('.er').querySelector('input'),v=parseFloat(inp.value);
+    if(isNaN(v)){alert('Nhập một số');return;}
+    EDIT[i]=inp.value;saveItems([[i,v]]);
+  });
   updSave();
 }
 $('b-export').onclick=()=>{
@@ -473,18 +520,41 @@ $('f-import').onchange=e=>{
     if(o.id&&o.id!==ID&&!confirm('File này xuất từ thiết bị khác (ID '+o.id+'). Vẫn nạp các giá trị vào ô sửa?'))return;
     let n=0;
     o.params.forEach(p=>{const i=+p.i,v=parseFloat(p.value);
-      if(((i>=0&&i<=26)||i===33)&&!isNaN(v)&&v>=PMIN[i]&&v<=PMAX[i]){EDIT[i]=String(v);n++;}});   // không nhập số cell và dung lượng để tránh nhầm giữa các pack
+      if(((i>=0&&i<=26)||i===33||i===34||i===35)&&!isNaN(v)&&v>=PMIN[i]&&v<=PMAX[i]){EDIT[i]=String(v);n++;}});   // không nhập số cell và dung lượng để tránh nhầm giữa các pack
     renderSet();
     $('savemsg').style.color='';$('savemsg').textContent='Đã nạp '+n+' thông số từ file vào ô sửa (không nhập Số cell và Dung lượng). Kiểm tra các ô màu cam rồi bấm LƯU.';
   }catch(err){alert('Không đọc được file: '+err.message);}};
   r.readAsText(f);
 };
+function updCal(){
+  const w=$('calwrap');if(!w)return;
+  const on=!!(S&&S.cal===1&&S.pw===1);w.style.display=on?'block':'none';
+  const L=S&&S.L;
+  $('calvlive').textContent='BMS đang đo: '+(L?L.v.toFixed(3):'--')+' V';
+  $('calilive').textContent='BMS đang đo: '+(L?L.a.toFixed(3):'--')+' A';
+  $('b-cal-v').disabled=!UNLOCK;$('b-cal-i').disabled=!UNLOCK;
+}
+function calGo(kind){
+  const L=S&&S.L;if(!L){alert('BMS chưa có số liệu');return;}
+  const inp=$(kind==='v'?'cal-v':'cal-i'),v=parseFloat(inp.value);
+  if(isNaN(v)){alert('Nhập giá trị thực đo');return;}
+  const live=kind==='v'?L.v:L.a;
+  if(kind==='v'){if(!(live>10&&Math.abs(v-live)<=0.03*live)){alert('Điện áp phải nằm trong ±3% so với số BMS đang đo ('+live.toFixed(3)+' V)');return;}}
+  else{const tol=Math.max(1,0.1*Math.abs(live));if(!(Math.abs(v)<=400&&Math.abs(v-live)<=tol)){alert('Dòng phải chênh tối đa '+tol.toFixed(1)+' A so với số BMS đang đo ('+live.toFixed(3)+' A)');return;}}
+  const name=kind==='v'?'ĐIỆN ÁP':'DÒNG';
+  if(!confirm('HIỆU CHUẨN '+name+'\n\nBMS đang đo: '+live.toFixed(3)+(kind==='v'?' V':' A')+'\nSẽ đặt thành: '+v.toFixed(3)+(kind==='v'?' V':' A')+'\n\nSai hiệu chuẩn làm BMS đo sai cả pack.'))return;
+  if((prompt('Gõ HIEUCHUAN để xác nhận')||'').trim().toUpperCase()!=='HIEUCHUAN'){alert('Đã hủy');return;}
+  send('cal:'+kind+':'+v.toFixed(3));
+  $('calmsg').style.color='var(--ok)';$('calmsg').textContent='Đã gửi lệnh hiệu chuẩn '+name.toLowerCase()+'. Kiểm tra lại số đo ở Trang chủ sau vài giây.';
+}
+$('b-cal-v').onclick=()=>calGo('v');$('b-cal-i').onclick=()=>calGo('i');
 $('tg-unlock').onclick=()=>{
   if(!UNLOCK&&!confirm('MỞ KHÓA sửa thông số BMS?\n\nSai thông số bảo vệ có thể làm hỏng pin hoặc gây nguy hiểm. Chỉ sửa khi hiểu rõ.'))return;
   lock(!UNLOCK);};
-$('b-save').onclick=async()=>{
-  const items=dirtyList().map(i=>[i,parseFloat(EDIT[i])]);
-  if(!items.length)return;
+async function saveItems(items){
+  if(SAVING)return;
+  items=items.filter(([i,v])=>!isNaN(v)&&Math.abs(v-SET[i])>=Math.pow(10,-PN[i][2])/2);
+  if(!items.length){alert('Giá trị không thay đổi');return;}
   for(const [i,v] of items){if(v<PMIN[i]||v>PMAX[i]){alert(PN[i][0]+': giá trị phải từ '+PMIN[i]+' đến '+PMAX[i]+' '+PN[i][1]);return;}}
   const val=i=>{const f=items.find(x=>x[0]===i);return f?f[1]:SET[i];};
   const w=[];
@@ -499,13 +569,16 @@ $('b-save').onclick=async()=>{
     const [i,v]=items[k];$('savemsg').textContent='Đang ghi '+(k+1)+'/'+items.length+': '+PN[i][0]+'…';
     send('par:'+i+':'+(+v.toFixed(3)));await sleep(1600);
   }
-  send('readset');$('savemsg').textContent='Đã gửi, đang đọc lại từ BMS…';await sleep(4500);
-  const bad=items.filter(([i,v])=>Math.abs(SET[i]-v)>=Math.pow(10,-PN[i][2])/2);
-  EDIT={};SAVING=false;
+  send('readset');$('savemsg').textContent='Đã gửi, đang chờ BMS xác nhận (tối đa 15 giây)…';
+  const miss=()=>items.filter(([i,v])=>Math.abs(SET[i]-v)>=Math.pow(10,-PN[i][2])/2);
+  let bad=miss();
+  for(let t=0;t<15&&bad.length;t++){await sleep(1000);if(t%5===4)send('readset');bad=miss();}   // BMS ghi xong hơi chậm nên chờ và đọc lại nhiều lần
+  items.forEach(([i])=>delete EDIT[i]);SAVING=false;
   if(bad.length){$('savemsg').style.color='var(--bad)';$('savemsg').textContent='BMS chưa nhận: '+bad.map(([i])=>PN[i][0]).join(', ')+'. Có thể giá trị bị BMS từ chối hoặc chưa đọc lại kịp, bấm "Đọc lại từ BMS" để kiểm tra.';}
   else{$('savemsg').style.color='var(--ok)';$('savemsg').textContent='Đã ghi xong và BMS xác nhận.';}
   renderSet();
-};
+}
+$('b-save').onclick=()=>saveItems(dirtyList().map(i=>[i,parseFloat(EDIT[i])]));
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 
 /* ---------- Biểu đồ (SVG thuần) ---------- */
