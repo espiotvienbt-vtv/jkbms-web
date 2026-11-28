@@ -185,7 +185,7 @@ function render(){
       const bar=f.unit==="%"&&typeof v==="number"?`<div class="bar"><i style="width:${Math.max(0,Math.min(100,v))}%"></i></div>`:"";
       return`<div class="row${bar?" bw":""}"><span class="lb">${f.label}</span><span class="val">${v==null?"--":v}<span class="u">${f.unit||""}</span></span>${bar}</div>`}).join("");
    const bc=onl[d.id]===false?"bad":onl[d.id]?"ok":"",bt=onl[d.id]===false?"Thiết bị offline":onl[d.id]?"Đang online":s?"Đã nhận dữ liệu":"Chưa có dữ liệu";
-   return`<div class="card"><div class="ch"><span class="ci">${IC[d.group]||(d.type==="switch"?"🔌":"📊")}</span><div class="ct"><h2>${d.name}</h2><span class="badge ${bc}">${bt}</span></div><button class="del" onclick="delDev(${i})" aria-label="Xóa thiết bị">🗑</button></div>${body}</div>`}).join("")}
+   return`<div class="card"><div class="ch"><span class="ci">${IC[d.group]||(d.type==="switch"?"🔌":"📊")}</span><div class="ct"><h2>${esc(d.name)}</h2><span class="badge ${bc}">${bt}</span></div><button class="del" onclick="renDev(${i})" aria-label="Đổi tên thiết bị">✏️</button><button class="del" onclick="delDev(${i})" aria-label="Xóa thiết bị">🗑</button></div>${body}</div>`}).join("")}
 function persist(){localStorage.setItem("sh_cfg",JSON.stringify(cfg))}
 function openAdd(){
  $("a_group").innerHTML=Object.entries(cfg.groups).filter(([k])=>k!=="all").map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
@@ -204,6 +204,8 @@ function addDev(){
  else{const f=lines($("a_fl").value);if(!$("a_st2").value.trim()||!f.length)return alert("Cần topic số liệu và ít nhất 1 dòng số liệu");
   Object.assign(d,{type:"sensor",status:$("a_st2").value.trim(),fields:f.map(a=>({label:a[0],key:a[1],unit:a[2]||""}))})}
  cfg.devices.push(d);persist();adlg.close();connect();render()}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function renDev(i){const n=prompt("Đổi tên thiết bị",cfg.devices[i].name);if(n===null)return;const v=n.trim();if(!v)return;cfg.devices[i].name=v;persist();render()}
 function delDev(i){if(!confirm("Xóa thiết bị \""+cfg.devices[i].name+"\"?"))return;cfg.devices.splice(i,1);persist();connect();render()}
 function openCfg(){$("mpass").value="";$("cfg").value=JSON.stringify(cfg,null,1);dlg.showModal()}
 function saveCfg(){try{cfg=JSON.parse($("cfg").value)}catch(e){return alert("JSON sai: "+e.message)}
