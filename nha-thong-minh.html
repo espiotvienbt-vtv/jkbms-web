@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -12,31 +13,117 @@ var l=document.createElement("link");l.rel="manifest";l.href=URL.createObjectURL
 </script>
 <meta name="theme-color" content="#0f172a"><meta name="apple-mobile-web-app-capable" content="yes">
 <style>
-:root{--bg:#f1f5f9;--card:#fff;--tx:#0f172a;--mu:#64748b;--ac:#16a34a;--off:#cbd5e1;--bd:#e2e8f0;--bad:#dc2626}
-@media(prefers-color-scheme:dark){:root{--bg:#0f172a;--card:#1e293b;--tx:#f1f5f9;--mu:#94a3b8;--ac:#22c55e;--off:#475569;--bd:#334155}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px}
-h1{font-size:20px;margin:0}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--bad);margin-right:6px}.dot.ok{background:var(--ac)}
-.tabs{display:flex;gap:8px;padding:0 16px 8px;overflow-x:auto}
-.tabs button{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 14px;border-radius:20px;font-size:14px}
-.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
-main{display:grid;gap:12px;padding:8px 16px 24px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px}
-.card h2{font-size:16px;margin:0 0 2px}.sub{font-size:12px;color:var(--mu);margin-bottom:10px}
-.row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--bd)}
-.sw{width:52px;height:30px;border-radius:15px;background:var(--off);border:0;position:relative;transition:.2s}
-.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
-.sw.on{background:var(--ac)}.sw.on::after{left:25px}
-.val{font-size:20px;font-weight:600}.u{font-size:12px;color:var(--mu);margin-left:2px}
-dialog{border:0;border-radius:16px;background:var(--card);color:var(--tx);width:min(560px,94vw)}
-textarea{width:100%;height:50vh;font:12px monospace;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px}
-.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-size:14px}.btn.g{background:var(--off)}
-input,select{width:100%;padding:9px;margin:4px 0 8px;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;font-size:14px}label{font-size:12px;color:var(--mu)}.del{float:right;background:none;border:0;font-size:15px}#adlg textarea{height:90px}.gear{background:none;border:0;font-size:22px;color:var(--tx)}
+:root{
+ --bg1:#eef3fa;--bg2:#d6e2f2;--glow1:rgba(37,99,235,.20);--glow2:rgba(20,184,166,.16);--grid:rgba(15,23,42,.045);
+ --card:rgba(255,255,255,.80);--cbd:rgba(15,23,42,.09);--tx:#0f172a;--mu:#5b6b82;--field:rgba(15,23,42,.055);
+ --ac:#2563eb;--actx:#fff;--bad:#dc2626;--good:#16a34a;
+ --on:#ef4444;--onglow:rgba(239,68,68,.40);--ontx:#dc2626;
+ --off:#22c55e;--offglow:rgba(34,197,94,.34);--offtx:#15803d;
+ --shadow:0 14px 34px -16px rgba(15,23,42,.35);--gray:#cbd5e1
+}
+@media(prefers-color-scheme:dark){:root{
+ --bg1:#070d1a;--bg2:#0f1a33;--glow1:rgba(56,189,248,.16);--glow2:rgba(99,102,241,.16);--grid:rgba(148,163,184,.07);
+ --card:rgba(20,30,54,.74);--cbd:rgba(148,163,184,.16);--tx:#e8eefb;--mu:#93a4bf;--field:rgba(148,163,184,.12);
+ --ac:#38bdf8;--actx:#06202e;--bad:#f87171;--good:#4ade80;
+ --ontx:#f87171;--offtx:#4ade80;--shadow:0 16px 40px -18px rgba(0,0,0,.7);--gray:#475569
+}}
+*{box-sizing:border-box}
+html{min-height:100%;background:var(--bg1)}
+body{margin:0;min-height:100vh;color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+ background:radial-gradient(900px 520px at 6% -8%,var(--glow1),transparent 62%),radial-gradient(820px 520px at 100% 0%,var(--glow2),transparent 58%),linear-gradient(180deg,var(--bg1),var(--bg2));
+ background-attachment:fixed;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+ background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:38px 38px;
+ -webkit-mask-image:linear-gradient(180deg,#000,transparent 75%);mask-image:linear-gradient(180deg,#000,transparent 75%)}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 16px 10px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:23px;background:var(--card);border:1px solid var(--cbd);box-shadow:var(--shadow)}
+h1{font-size:20px;line-height:1.2;margin:0;font-weight:700;letter-spacing:-.01em}
+#st{display:inline-flex;align-items:center;font-size:12px;color:var(--mu);margin-top:3px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--bad);margin-right:6px;box-shadow:0 0 0 3px color-mix(in srgb,var(--bad) 22%,transparent)}
+.dot.ok{background:var(--good);box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 22%,transparent)}
+.acts{display:flex;gap:8px}
+.ib{width:42px;height:42px;border-radius:13px;border:1px solid var(--cbd);background:var(--card);font-size:18px;display:grid;place-items:center;box-shadow:var(--shadow)}
+.ib:active{transform:scale(.95)}
+
+.clock{margin:6px 16px 14px;padding:16px 20px;border-radius:22px;border:1px solid var(--cbd);background:var(--card);
+ -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:var(--shadow);
+ display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 20px;position:relative;overflow:hidden}
+.clock::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:4px;border-radius:0 4px 4px 0;background:var(--ac)}
+.time{font-size:clamp(40px,12vw,58px);font-weight:700;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.time small{font-size:.46em;font-weight:600;color:var(--mu);margin-left:2px}
+.date{text-align:right;margin-left:auto}
+.date b{display:block;font-size:19px;font-weight:700}
+.date span{display:block;font-size:14px;color:var(--mu);margin-top:3px}
+
+.tabs{display:flex;gap:8px;padding:0 16px 10px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;border:1px solid var(--cbd);background:var(--card);padding:9px 16px;border-radius:999px;font-size:14px;font-weight:500}
+.tabs button.on{background:var(--ac);color:var(--actx);border-color:var(--ac);font-weight:600}
+
+main{display:grid;gap:14px;padding:6px 16px 28px;grid-template-columns:repeat(auto-fill,minmax(min(100%,310px),1fr))}
+.card{background:var(--card);border:1px solid var(--cbd);border-radius:22px;padding:16px 16px 8px;box-shadow:var(--shadow);
+ -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.ch{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.ci{width:42px;height:42px;flex:none;border-radius:13px;background:var(--field);display:grid;place-items:center;font-size:21px}
+.ct{flex:1;min-width:0}
+.card h2{font-size:16px;line-height:1.25;margin:0;font-weight:650}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mu);margin-top:3px}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gray)}
+.badge.ok{color:var(--good)}.badge.ok::before{background:var(--good)}
+.badge.bad{color:var(--bad)}.badge.bad::before{background:var(--bad)}
+.del{background:none;border:0;font-size:16px;opacity:.55;padding:6px;border-radius:10px}
+.del:hover{opacity:1;background:var(--field)}
+
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border-top:1px solid var(--cbd)}
+.lb{font-size:15px;font-weight:500}
+.ctl{display:flex;align-items:center;gap:10px}
+.tag{font-style:normal;font-size:13px;font-weight:600;color:var(--offtx);min-width:26px;text-align:right}
+.tag.on{color:var(--ontx)}
+
+.sw{width:58px;height:34px;border-radius:17px;border:0;padding:0;position:relative;flex:none;background:var(--off);
+ box-shadow:inset 0 0 0 1px rgba(0,0,0,.10),0 0 16px var(--offglow);transition:background .22s,box-shadow .22s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:28px;height:28px;border-radius:50%;background:#fff;
+ box-shadow:0 2px 5px rgba(0,0,0,.30);transition:transform .22s}
+.sw.on{background:var(--on);box-shadow:inset 0 0 0 1px rgba(0,0,0,.10),0 0 16px var(--onglow)}
+.sw.on::after{transform:translateX(24px)}
+
+.val{font-size:21px;font-weight:650;font-variant-numeric:tabular-nums}
+.u{font-size:12px;color:var(--mu);margin-left:3px;font-weight:500}
+.row.bw{flex-wrap:wrap;row-gap:9px}
+.bar{flex-basis:100%;height:7px;border-radius:7px;background:var(--field);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:7px;background:var(--ac);transition:width .4s}
+
+dialog{border:1px solid var(--cbd);border-radius:22px;background:var(--bg1);color:var(--tx);width:min(560px,94vw);padding:20px;box-shadow:0 30px 70px -20px rgba(0,0,0,.6)}
+dialog::backdrop{background:rgba(2,6,23,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+dialog h2{margin:0 0 6px;font-size:18px}
+.sub{font-size:12px;color:var(--mu);margin:0 0 10px}
+textarea{width:100%;height:50vh;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--field);color:var(--tx);border:1px solid var(--cbd);border-radius:12px;padding:10px}
+#adlg textarea{height:90px}
+input,select{width:100%;padding:10px 12px;margin:4px 0 8px;background:var(--field);color:var(--tx);border:1px solid var(--cbd);border-radius:12px;font-size:14px}
+label{font-size:12px;color:var(--mu)}
+.btn{background:var(--ac);color:var(--actx);border:0;border-radius:12px;padding:11px 18px;font-size:14px;font-weight:600}
+.btn.g{background:var(--field);color:var(--tx)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body>
-<header><h1>🏠 Nhà Thông Minh</h1><div><span id="st"><span class="dot"></span>mất kết nối</span> <button class="gear" onclick="openAdd()">➕</button> <button class="gear" onclick="openCfg()">⚙️</button></div></header>
+<div class="wrap">
+<header class="top">
+ <div class="brand"><span class="logo">🏠</span><div><h1>Nhà Thông Minh</h1><span id="st"><span class="dot"></span>mất kết nối</span></div></div>
+ <div class="acts"><button class="ib" onclick="openAdd()" aria-label="Thêm thiết bị">➕</button><button class="ib" onclick="openCfg()" aria-label="Cài đặt">⚙️</button></div>
+</header>
+<section class="clock" aria-label="Ngày giờ hiện tại">
+ <div class="time"><span id="ct">--:--</span><small id="cs">:--</small></div>
+ <div class="date"><b id="cw">&nbsp;</b><span id="cd">&nbsp;</span></div>
+</section>
 <div class="tabs" id="tabs"></div><main id="main"></main>
+</div>
 <dialog id="dlg"><h2>Cài đặt (JSON)</h2>
 <p class="sub">brokers: máy chủ MQTT (điền pass vào đây). devices: thêm/sửa thiết bị.</p>
+<label>Mật khẩu MQTT (máy chủ main)</label><input id="mpass" type="password" autocomplete="off" placeholder="Nhập mật khẩu rồi bấm Lưu">
 <textarea id="cfg" spellcheck="false"></textarea><p><button class="btn" onclick="saveCfg()">Lưu</button> <button class="btn g" onclick="resetCfg()">Mặc định</button> <button class="btn g" onclick="dlg.close()">Đóng</button></p></dialog>
 <dialog id="adlg"><h2>➕ Thêm thiết bị</h2>
 <label>Loại thiết bị</label><select id="a_type" onchange="typeChg()"><option value="vp">Bo relay VIENPIN (đèn/quạt/relay)</option><option value="sw">Công tắc tùy chỉnh</option><option value="se">Cảm biến / đồng hồ đo</option></select>
@@ -52,7 +139,7 @@ input,select{width:100%;padding:9px;margin:4px 0 8px;background:var(--bg);color:
 <script src="https://cdn.jsdelivr.net/npm/mqtt@5.3.4/dist/mqtt.min.js"></script>
 <script>
 const DEF={brokers:{
- main:{url:"wss://i2176b42.ala.asia-southeast1.emqxsl.com:8084/mqtt",user:"vienpin",pass:"V76a07481@"},
+ main:{url:"wss://i2176b42.ala.asia-southeast1.emqxsl.com:8084/mqtt",user:"vienpin",pass:""},
  pub:{url:"wss://broker.emqx.io:8084/mqtt"}},
 groups:{all:"Tất cả",solar:"Điện / Solar",relay:"Đèn · Quạt · Relay"},
 devices:[
@@ -62,7 +149,7 @@ devices:[
  channels:[{label:"Đèn",key:"den",on:"DEN_ON",off:"DEN_OFF"},{label:"Quạt",key:"quat",on:"QUAT_ON",off:"QUAT_OFF"}]},
 {id:"ats",name:"BO 1 – ATS nlmt/lưới",group:"solar",type:"switch",broker:"pub",control:"sauvien/device3/control",status:"sauvien/device3/status",
  channels:[{label:"Năng lượng mặt trời",key:"nlmt",on:"nlmt:1",off:"nlmt:0"},{label:"Điện lưới quốc gia",key:"luoi",on:"luoi:1",off:"luoi:0"}]},
-{id:"jk",name:"BMS JK (16 cell)",group:"solar",type:"sensor",broker:"main",status:"vienpin/882050/state",
+{id:"jk",name:"BMS JK (16 cell)",group:"solar",type:"sensor",broker:"main",status:"vienpin//state",
  fields:[{label:"Dung lượng",key:"L.soc",unit:"%"},{label:"Điện áp pack",key:"L.v",unit:"V"},{label:"Dòng",key:"L.a",unit:"A"},{label:"Công suất",key:"L.w",unit:"W"},{label:"Chênh áp cell",key:"L.dv",unit:"mV"},{label:"Dung lượng còn",key:"L.ah",unit:"Ah"},{label:"Số chu kỳ",key:"L.cy"}]},
 {id:"zjbe",name:"Bộ sạc NLMT ZJBE",group:"solar",type:"sensor",broker:"pub",status:"vienpin/zjbe_solar/status",
  fields:[{label:"Điện áp pin",key:"v",unit:"V"},{label:"Dòng sạc",key:"ic",unit:"A"},{label:"Công suất sạc",mul:["v","ic"],unit:"W"},{label:"Nhiệt độ",key:"t",unit:"°C"},{label:"Dòng tải",key:"il",unit:"A"}]}
@@ -83,18 +170,22 @@ function connect(){
   c.on("message",(t,m)=>{cfg.devices.filter(d=>(d.broker||"main")===n&&d.online===t).forEach(d=>{onl[d.id]=m.toString().trim()==="online";render()});cfg.devices.filter(d=>(d.broker||"main")===n&&d.status===t).forEach(d=>{
    let p;try{p=JSON.parse(m.toString())}catch(e){p={value:m.toString()}}state[d.id]=p;render()})});
  }}
-function stat(){const ok=Object.values(clients).length&&Object.values(clients).every(c=>c.connected);
- $("st").innerHTML=`<span class="dot ${ok?"ok":""}"></span>${ok?"đã kết nối":"mất kết nối"}`}
+function stat(){const need=Object.entries(cfg.brokers).some(([n,b])=>b.user&&!b.pass&&cfg.devices.some(d=>(d.broker||"main")===n));const ok=Object.values(clients).length&&Object.values(clients).every(c=>c.connected);
+ $("st").innerHTML=`<span class="dot ${ok?"ok":""}"></span>${ok?"đã kết nối":need?"chưa có mật khẩu – bấm ⚙️ để nhập":"mất kết nối"}`}
 function send(d,cmd){const c=clients[d.broker||"main"];if(c&&c.connected)c.publish(d.control,cmd);else alert("Chưa kết nối MQTT")}
 function toggle(i,j){const d=cfg.devices[i],ch=d.channels[j],on=isOn((state[d.id]||{})[ch.key]);send(d,on?ch.off:ch.on)}
 function render(){
- $("tabs").innerHTML=Object.entries(cfg.groups).map(([k,v])=>`<button class="${k===tab?"on":""}" onclick="tab='${k}';render()">${v}</button>`).join("");
- $("main").innerHTML=cfg.devices.map((d,i)=>{
-  if(tab!=="all"&&d.group!==tab)return"";
-  const s=state[d.id],body=d.type==="switch"
-   ?d.channels.map((ch,j)=>`<div class="row"><span>${ch.label}</span><button class="sw ${s&&isOn(s[ch.key])?"on":""}" onclick="toggle(${i},${j})"></button></div>`).join("")
-   :d.fields.map(f=>{let v=s?(f.mul?f.mul.map(k=>get(s,k)).reduce((x,y)=>x*y):get(s,f.key)):undefined;if(typeof v==="number")v=Math.round(v*100)/100;return`<div class="row"><span>${f.label}</span><span class="val">${v==null?"--":v}<span class="u">${f.unit||""}</span></span></div>`}).join("");
-  return`<div class="card"><h2>${d.name}<button class="del" onclick="delDev(${i})">🗑</button></h2><div class="sub">${onl[d.id]===false?"⚠️ thiết bị offline":onl[d.id]?"đang online":s?"đã nhận dữ liệu":"chưa có dữ liệu"}</div>${body}</div>`}).join("")}
+  $("tabs").innerHTML=Object.entries(cfg.groups).map(([k,v])=>`<button class="${k===tab?"on":""}" onclick="tab='${k}';render()">${v}</button>`).join("");
+  const IC={solar:"☀️",relay:"💡"};
+  $("main").innerHTML=cfg.devices.map((d,i)=>{
+   if(tab!=="all"&&d.group!==tab)return"";
+   const s=state[d.id],body=d.type==="switch"
+    ?d.channels.map((ch,j)=>{const on=!!(s&&isOn(s[ch.key]));return`<div class="row"><span class="lb">${ch.label}</span><span class="ctl"><em class="tag ${on?"on":""}">${on?"Bật":"Tắt"}</em><button class="sw ${on?"on":""}" role="switch" aria-checked="${on}" aria-label="${ch.label}" onclick="toggle(${i},${j})"></button></span></div>`}).join("")
+    :d.fields.map(f=>{let v=s?(f.mul?f.mul.map(k=>get(s,k)).reduce((x,y)=>x*y):get(s,f.key)):undefined;if(typeof v==="number")v=Math.round(v*100)/100;
+      const bar=f.unit==="%"&&typeof v==="number"?`<div class="bar"><i style="width:${Math.max(0,Math.min(100,v))}%"></i></div>`:"";
+      return`<div class="row${bar?" bw":""}"><span class="lb">${f.label}</span><span class="val">${v==null?"--":v}<span class="u">${f.unit||""}</span></span>${bar}</div>`}).join("");
+   const bc=onl[d.id]===false?"bad":onl[d.id]?"ok":"",bt=onl[d.id]===false?"Thiết bị offline":onl[d.id]?"Đang online":s?"Đã nhận dữ liệu":"Chưa có dữ liệu";
+   return`<div class="card"><div class="ch"><span class="ci">${IC[d.group]||(d.type==="switch"?"🔌":"📊")}</span><div class="ct"><h2>${d.name}</h2><span class="badge ${bc}">${bt}</span></div><button class="del" onclick="delDev(${i})" aria-label="Xóa thiết bị">🗑</button></div>${body}</div>`}).join("")}
 function persist(){localStorage.setItem("sh_cfg",JSON.stringify(cfg))}
 function openAdd(){
  $("a_group").innerHTML=Object.entries(cfg.groups).filter(([k])=>k!=="all").map(([k,v])=>`<option value="${k}">${v}</option>`).join("");
@@ -114,10 +205,16 @@ function addDev(){
   Object.assign(d,{type:"sensor",status:$("a_st2").value.trim(),fields:f.map(a=>({label:a[0],key:a[1],unit:a[2]||""}))})}
  cfg.devices.push(d);persist();adlg.close();connect();render()}
 function delDev(i){if(!confirm("Xóa thiết bị \""+cfg.devices[i].name+"\"?"))return;cfg.devices.splice(i,1);persist();connect();render()}
-function openCfg(){$("cfg").value=JSON.stringify(cfg,null,1);dlg.showModal()}
+function openCfg(){$("mpass").value="";$("cfg").value=JSON.stringify(cfg,null,1);dlg.showModal()}
 function saveCfg(){try{cfg=JSON.parse($("cfg").value)}catch(e){return alert("JSON sai: "+e.message)}
- localStorage.setItem("sh_cfg",JSON.stringify(cfg));dlg.close();state={};onl={};connect();render()}
-function resetCfg(){if(confirm("Đưa về mặc định?")){localStorage.removeItem("sh_cfg");load();$("cfg").value=JSON.stringify(cfg,null,1);state={};connect();render()}}
-load();render();connect();
+  const mp=$("mpass").value;if(mp&&cfg.brokers&&cfg.brokers.main)cfg.brokers.main.pass=mp;
+ localStorage.setItem("sh_cfg",JSON.stringify(cfg));dlg.close();state={};onl={};connect();stat();render()}
+function resetCfg(){if(confirm("Đưa về mặc định?")){const old=cfg.brokers;let kept=false;localStorage.removeItem("sh_cfg");load();for(const k in old)if(old[k].pass&&cfg.brokers[k]){cfg.brokers[k].pass=old[k].pass;kept=true}if(kept)persist();$("cfg").value=JSON.stringify(cfg,null,1);state={};connect();render()}}
+const WD=["Chủ nhật","Thứ hai","Thứ ba","Thứ tư","Thứ năm","Thứ sáu","Thứ bảy"],p2=n=>String(n).padStart(2,"0");
+function tick(){const n=new Date();$("ct").textContent=p2(n.getHours())+":"+p2(n.getMinutes());$("cs").textContent=":"+p2(n.getSeconds());
+  $("cw").textContent=WD[n.getDay()];$("cd").textContent="Ngày "+n.getDate()+" tháng "+(n.getMonth()+1)+" năm "+n.getFullYear()}
+tick();setInterval(tick,1000);
+load();render();connect();stat();
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script></body></html>
+Hiển thị index.html.
