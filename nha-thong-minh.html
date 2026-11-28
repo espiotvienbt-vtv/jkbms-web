@@ -78,6 +78,8 @@ main{display:grid;gap:14px;padding:6px 16px 28px;grid-template-columns:repeat(au
 .badge.bad{color:var(--bad)}.badge.bad::before{background:var(--bad)}
 .del{background:none;border:0;font-size:16px;opacity:.55;padding:6px;border-radius:10px}
 .del:hover{opacity:1;background:var(--field)}
+.pen{background:none;border:0;font-size:12px;opacity:.5;padding:4px 6px;margin-left:2px;border-radius:8px;vertical-align:middle}
+.pen:hover{opacity:1;background:var(--field)}
 
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border-top:1px solid var(--cbd)}
 .lb{font-size:15px;font-weight:500}
@@ -180,10 +182,10 @@ function render(){
   $("main").innerHTML=cfg.devices.map((d,i)=>{
    if(tab!=="all"&&d.group!==tab)return"";
    const s=state[d.id],body=d.type==="switch"
-    ?d.channels.map((ch,j)=>{const on=!!(s&&isOn(s[ch.key]));return`<div class="row"><span class="lb">${ch.label}</span><span class="ctl"><em class="tag ${on?"on":""}">${on?"Bật":"Tắt"}</em><button class="sw ${on?"on":""}" role="switch" aria-checked="${on}" aria-label="${ch.label}" onclick="toggle(${i},${j})"></button></span></div>`}).join("")
-    :d.fields.map(f=>{let v=s?(f.mul?f.mul.map(k=>get(s,k)).reduce((x,y)=>x*y):get(s,f.key)):undefined;if(typeof v==="number")v=Math.round(v*100)/100;
+    ?d.channels.map((ch,j)=>{const on=!!(s&&isOn(s[ch.key]));return`<div class="row"><span class="lb">${esc(ch.label)}<button class="pen" onclick="renRow(${i},${j})" aria-label="Đổi tên">✏️</button></span><span class="ctl"><em class="tag ${on?"on":""}">${on?"Bật":"Tắt"}</em><button class="sw ${on?"on":""}" role="switch" aria-checked="${on}" aria-label="${esc(ch.label)}" onclick="toggle(${i},${j})"></button></span></div>`}).join("")
+    :d.fields.map((f,j)=>{let v=s?(f.mul?f.mul.map(k=>get(s,k)).reduce((x,y)=>x*y):get(s,f.key)):undefined;if(typeof v==="number")v=Math.round(v*100)/100;
       const bar=f.unit==="%"&&typeof v==="number"?`<div class="bar"><i style="width:${Math.max(0,Math.min(100,v))}%"></i></div>`:"";
-      return`<div class="row${bar?" bw":""}"><span class="lb">${f.label}</span><span class="val">${v==null?"--":v}<span class="u">${f.unit||""}</span></span>${bar}</div>`}).join("");
+      return`<div class="row${bar?" bw":""}"><span class="lb">${esc(f.label)}<button class="pen" onclick="renRow(${i},${j})" aria-label="Đổi tên">✏️</button></span><span class="val">${v==null?"--":v}<span class="u">${f.unit||""}</span></span>${bar}</div>`}).join("");
    const bc=onl[d.id]===false?"bad":onl[d.id]?"ok":"",bt=onl[d.id]===false?"Thiết bị offline":onl[d.id]?"Đang online":s?"Đã nhận dữ liệu":"Chưa có dữ liệu";
    return`<div class="card"><div class="ch"><span class="ci">${IC[d.group]||(d.type==="switch"?"🔌":"📊")}</span><div class="ct"><h2>${esc(d.name)}</h2><span class="badge ${bc}">${bt}</span></div><button class="del" onclick="renDev(${i})" aria-label="Đổi tên thiết bị">✏️</button><button class="del" onclick="delDev(${i})" aria-label="Xóa thiết bị">🗑</button></div>${body}</div>`}).join("")}
 function persist(){localStorage.setItem("sh_cfg",JSON.stringify(cfg))}
@@ -206,6 +208,7 @@ function addDev(){
  cfg.devices.push(d);persist();adlg.close();connect();render()}
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function renDev(i){const n=prompt("Đổi tên thiết bị",cfg.devices[i].name);if(n===null)return;const v=n.trim();if(!v)return;cfg.devices[i].name=v;persist();render()}
+function renRow(i,j){const d=cfg.devices[i],a=d.type==="switch"?d.channels:d.fields,n=prompt("Đổi tên",a[j].label);if(n===null)return;const v=n.trim();if(!v)return;a[j].label=v;persist();render()}
 function delDev(i){if(!confirm("Xóa thiết bị \""+cfg.devices[i].name+"\"?"))return;cfg.devices.splice(i,1);persist();connect();render()}
 function openCfg(){$("mpass").value="";$("cfg").value=JSON.stringify(cfg,null,1);dlg.showModal()}
 function saveCfg(){try{cfg=JSON.parse($("cfg").value)}catch(e){return alert("JSON sai: "+e.message)}
